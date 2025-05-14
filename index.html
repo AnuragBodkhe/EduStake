@@ -1040,6 +1040,9 @@
     <script src="profile-sync.js" defer></script>
     <script src="profile-enhancer.js" defer></script>
     <script src="avatar-enhancer.js" defer></script>
+    <script src="saved-chats.js" defer></script>
+    <script src="saved-messages-display.js" defer></script>
+    <script src="search-recommendations.js" defer></script>
     <script src="upload-animation.js" defer></script>
     <script src="chat-enhancements.js" defer></script>
 </head>
@@ -1582,15 +1585,53 @@
         // Direct logout function that works independently
         function triggerLogout() {
             console.log("Direct logout triggered");
+            
+            // Save important data before logout
+            const dataToPreserve = {
+                // Saved chat messages
+                edustake_saved_chats: localStorage.getItem('edustake_saved_chats'),
+                // Current chat messages
+                edustake_current_messages: localStorage.getItem('edustake_current_messages'),
+                // Resources
+                edustake_resources: localStorage.getItem('edustake_resources'),
+                // Search history
+                edustake_search_history: localStorage.getItem('edustake_search_history'),
+                // User profiles
+                edustake_user_profiles: localStorage.getItem('edustake_user_profiles'),
+                // Current user profile
+                currentUser: localStorage.getItem('currentUser')
+            };
+            
+            // Preserve user profiles if UserProfileManager is available
+            if (window.UserProfileManager && window.UserProfileManager.preserveProfilesOnLogout) {
+                window.UserProfileManager.preserveProfilesOnLogout();
+            }
+            
             // Try to get auth from window.firebaseAuth or directly from firebase
             const auth = window.firebaseAuth || firebase.auth();
             
             // Sign out and redirect
             auth.signOut().then(() => {
                 console.log("User signed out successfully");
+                
+                // Restore preserved data after logout
+                Object.keys(dataToPreserve).forEach(key => {
+                    if (dataToPreserve[key]) {
+                        localStorage.setItem(key, dataToPreserve[key]);
+                    }
+                });
+                
                 window.location.href = 'landing.html';
             }).catch((error) => {
                 console.error("Error signing out:", error);
+                
+                // Restore preserved data even if there's an error
+                Object.keys(dataToPreserve).forEach(key => {
+                    if (dataToPreserve[key]) {
+                        localStorage.setItem(key, dataToPreserve[key]);
+                    }
+                });
+                
                 // If there's an error, try to redirect anyway
                 window.location.href = 'landing.html';
             });

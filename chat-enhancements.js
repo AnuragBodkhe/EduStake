@@ -130,66 +130,99 @@ function replaceWithCurrentUser(messageElement, currentUserProfile) {
  * @param {HTMLElement} messageElement - The message element to enhance
  */
 function enhanceMessageWithProfileInfo(messageElement) {
-    // Skip if already enhanced
+    // Skip if already processed
     if (messageElement.hasAttribute('data-profile-enhanced')) return;
     
-    // Mark as enhanced to avoid processing again
+    // Mark as processed
     messageElement.setAttribute('data-profile-enhanced', 'true');
     
-    // Find the username element
+    // Try to get message ID
+    const messageId = messageElement.getAttribute('data-message-id');
+    
+    // Try to get user ID from message
+    const userId = messageElement.getAttribute('data-user-id');
+    
+    // Try to get username from message
     const usernameElement = messageElement.querySelector('.sender-name, .username');
-    if (!usernameElement) return;
+    const username = usernameElement ? usernameElement.textContent.trim() : '';
     
-    // Get the username
-    const username = usernameElement.textContent.trim();
-    
-    // Find the avatar element
-    const avatarElement = messageElement.querySelector('.message-avatar');
-    const avatarImage = avatarElement ? avatarElement.querySelector('img') : null;
-    
-    // Try to get user information
-    let userId = messageElement.getAttribute('data-user-id');
+    // Try to get user profile
     let userProfile = null;
     
-    // If we have UserProfileManager, try to get profile by username
-    if (window.UserProfileManager) {
-        // Get all profiles
-        const profiles = window.UserProfileManager.getAllProfiles();
-        
-        // Find profile by username
-        for (const uid in profiles) {
-            const profile = profiles[uid];
-            if (profile.username === username || profile.displayName === username) {
-                userProfile = profile;
-                userId = uid;
-                break;
+    // If we have a message ID, try to get the message from local storage
+    if (messageId) {
+        try {
+            // Check saved messages
+            const savedMessagesJson = localStorage.getItem('edustake_saved_chats');
+            if (savedMessagesJson) {
+                const savedMessages = JSON.parse(savedMessagesJson);
+                const message = savedMessages.find(msg => msg.id === messageId);
+                if (message && message.username && message.photoURL) {
+                    userProfile = {
+                        username: message.username,
+                        photoURL: message.photoURL
+                    };
+                }
             }
+            
+            // Check current messages if not found in saved
+            if (!userProfile) {
+                const currentMessagesJson = localStorage.getItem('edustake_current_messages');
+                if (currentMessagesJson) {
+                    const currentMessages = JSON.parse(currentMessagesJson);
+                    const message = currentMessages.find(msg => msg.id === messageId);
+                    if (message && message.username && message.photoURL) {
+                        userProfile = {
+                            username: message.username,
+                            photoURL: message.photoURL
+                        };
+                    }
+                }
+            }
+        } catch (error) {
+            console.warn('Error getting message from storage:', error);
+        }
+    }
+    
+    if (userProfile) {
+        // Find the avatar element
+        const avatarElement = messageElement.querySelector('.message-avatar');
+        const avatarImage = avatarElement ? avatarElement.querySelector('img') : null;
+        
+        if (avatarImage) {
+            // Update existing avatar image
+            avatarImage.src = userProfile.photoURL;
+            avatarImage.alt = `${userProfile.username}'s avatar`;
+        } else if (avatarElement && !avatarImage) {
+            const newAvatarImage = document.createElement('img');
+            newAvatarImage.src = userProfile.photoURL;
+            newAvatarImage.alt = `${userProfile.username}'s avatar`;
+            newAvatarImage.className = 'user-avatar';
+            avatarElement.innerHTML = '';
+            avatarElement.appendChild(newAvatarImage);
+        } else if (!avatarElement && userProfile.photoURL) {
+            // Create avatar element if it doesn't exist
+            createAndAddAvatarElement(messageElement, userProfile);
         }
         
-        // If we found a profile, update the message
-        if (userProfile) {
-            // Update username if needed
-            if (usernameElement && userProfile.username) {
-                usernameElement.textContent = userProfile.username;
-            }
-            
-            // Update avatar if needed
-            if (avatarImage && userProfile.photoURL) {
-                avatarImage.src = userProfile.photoURL;
-            } else if (avatarElement && !avatarImage && userProfile.photoURL) {
-                // Create avatar image if it doesn't exist
-                const newAvatarImage = document.createElement('img');
-                newAvatarImage.src = userProfile.photoURL;
-                newAvatarImage.alt = 'Avatar';
-                newAvatarImage.className = 'user-avatar';
-                avatarElement.innerHTML = '';
-                avatarElement.appendChild(newAvatarImage);
-            } else if (!avatarElement && userProfile.photoURL) {
-                // Create avatar element if it doesn't exist
-                createAndAddAvatarElement(messageElement, userProfile);
-            }
-            
-            // Add user ID to message
+        // Add user ID to message
+        messageElement.setAttribute('data-user-id', userId);
+    } else if (username) {
+        // If we don't have a profile but have a username, create a default avatar
+        const defaultAvatarUrl = window.UserProfileManager.getDefaultAvatarURL(username);
+        
+        if (avatarImage) {
+            avatarImage.src = defaultAvatarUrl;
+        } else if (avatarElement && !avatarImage) {
+            const newAvatarImage = document.createElement('img');
+            newAvatarImage.src = defaultAvatarUrl;
+            newAvatarImage.alt = 'Avatar';
+            newAvatarImage.className = 'user-avatar';
+            avatarElement.innerHTML = '';
+            avatarElement.appendChild(newAvatarImage);
+        } else if (!avatarElement) {
+            // Create avatar element with default avatar
+            createAndAddAvatarElement(messageElement, { photoURL: defaultAvatarUrl, username });
             messageElement.setAttribute('data-user-id', userId);
         } else if (username) {
             // If we don't have a profile but have a username, create a default avatar
