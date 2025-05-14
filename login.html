@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduStake - Login</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  
+  <style>
+    /* Login page specific styles */
+    body {
+      background-color: #36393f;
+      color: #dcddde;
+    }
+    
+    .auth-box {
+      background-color: #2f3136;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.2);
+    }
+    
+    .logo h1 {
+      color: white;
+    }
+    
+    h2 {
+      color: white;
+    }
+    
+    .subtitle {
+      color: #b9bbbe;
+    }
+    
+    label {
+      color: #b9bbbe;
+    }
+    
+    input[type="email"],
+    input[type="password"] {
+      background-color: #202225;
+      border: 1px solid #202225;
+      color: white;
+    }
+    
+    input[type="email"]:focus,
+    input[type="password"]:focus {
+      border-color: #5865f2;
+    }
+    
+    .btn-primary {
+      background-color: #5865f2;
+    }
+    
+    .btn-primary:hover {
+      background-color: #4752c4;
+    }
+    
+    .auth-footer {
+      color: #b9bbbe;
+    }
+    
+    .auth-footer a {
+      color: #00aff4;
+    }
+    
+    .error-messages {
+      background-color: rgba(237, 66, 69, 0.1);
+      border: 1px solid #ed4245;
+      color: #ed4245;
+      padding: 10px;
+      border-radius: 3px;
+      margin-bottom: 20px;
+    }
+    
+    .success-message {
+      background-color: rgba(59, 165, 92, 0.1);
+      border: 1px solid #3ba55c;
+      color: #3ba55c;
+      padding: 10px;
+      border-radius: 3px;
+      margin-bottom: 20px;
+    }
+    
+    .info-message {
+      background-color: rgba(114, 137, 218, 0.1);
+      border: 1px solid #7289da;
+      color: #7289da;
+      padding: 10px;
+      border-radius: 3px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">    
+    <div class="main-content">
+      <div class="auth-container">
+        <div class="auth-box">
+          <div class="logo">
+            <i class="fas fa-graduation-cap"></i>
+            <h1>EduStake</h1>
+          </div>
+          <h2>Welcome back!</h2>
+          <p class="subtitle">We're so excited to see you again!</p>
+          
+          <!-- Display login errors if any -->
+          <div id="messages-container"></div>
+          
+          <form id="loginForm" method="POST">
+            <div class="form-group">
+              <label for="email">EMAIL</label>
+              <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+              <label for="password">PASSWORD</label>
+              <input type="password" id="password" name="password" required>
+              <div class="forgot-password">
+                <a href="#forgot" id="forgot-password-link">Forgot your password?</a>
+              </div>
+            </div>
+            <button type="submit" class="btn-primary">Log In</button>
+          </form>
+          
+          <div class="auth-footer">
+            <p>Need an account? <a href="register.html">Register</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Firebase SDK -->
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+    import { getDatabase, ref, update, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-hLnUmU12N9ivvIq7efYLe16O4DSLFx4",
+      authDomain: "edustake-ca45d.firebaseapp.com",
+      databaseURL: "https://edustake-ca45d-default-rtdb.firebaseio.com",
+      projectId: "edustake-ca45d",
+      storageBucket: "edustake-ca45d.appspot.com",
+      messagingSenderId: "885060407436",
+      appId: "1:885060407436:web:90227dc8a8f582a8726ba9",
+      measurementId: "G-R7M8MT3BN6"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    // Login form handler
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+      loginForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const messagesContainer = document.getElementById('messages-container');
+        
+        try {
+          const userCredential = await signInWithEmailAndPassword(auth, email, password);
+          const user = userCredential.user;
+
+          try {
+            // Try to update last active timestamp
+            await update(ref(database, `users/${user.uid}`), {
+              lastActive: new Date().toISOString()
+            });
+          } catch (dbError) {
+            console.error('Database update error:', dbError);
+            // Even if database update fails, we can still proceed with login
+          }
+          
+          messagesContainer.innerHTML = '<div class="success-message"><p>Login successful!</p></div>';
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 1500);
+          
+        } catch (error) {
+          console.error('Login error:', error);
+          messagesContainer.innerHTML = `<div class="error-messages"><p>${error.message}</p></div>`;
+        }
+      });
+    }
+    
+    // Forgot password handler
+    const forgotPasswordLink = document.getElementById('forgot-password-link');
+    if (forgotPasswordLink) {
+      forgotPasswordLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const messagesContainer = document.getElementById('messages-container');
+        
+        if (!email) {
+          messagesContainer.innerHTML = '<div class="error-messages"><p>Please enter your email address</p></div>';
+          return;
+        }
+        
+        // Show confirmation dialog
+        const confirmReset = confirm(`Send password reset email to ${email}?`);
+        
+        if (confirmReset) {
+          sendPasswordResetEmail(auth, email)
+            .then(() => {
+              messagesContainer.innerHTML = '<div class="info-message"><p>Password reset email sent! Please check your inbox.</p></div>';
+            })
+            .catch((error) => {
+              console.error('Password reset error:', error);
+              messagesContainer.innerHTML = `<div class="error-messages"><p>${error.message}</p></div>`;
+            });
+        }
+      });
+    }
+  </script>
+</body>
+</html>

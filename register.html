@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduStake - Register</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  
+  <style>
+    /* Register page specific styles */
+    body {
+      background-color: #36393f;
+      color: #dcddde;
+    }
+    
+    .auth-box {
+      background-color: #2f3136;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.2);
+    }
+    
+    .logo h1 {
+      color: white;
+    }
+    
+    h2 {
+      color: white;
+    }
+    
+    label {
+      color: #b9bbbe;
+    }
+    
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      background-color: #202225;
+      border: 1px solid #202225;
+      color: white;
+    }
+    
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    input[type="text"]:focus {
+      border-color: #5865f2;
+    }
+    
+    .btn-primary {
+      background-color: #5865f2;
+    }
+    
+    .btn-primary:hover {
+      background-color: #4752c4;
+    }
+    
+    .auth-footer {
+      color: #b9bbbe;
+    }
+    
+    .auth-footer a {
+      color: #00aff4;
+    }
+    
+    .error-messages {
+      background-color: rgba(237, 66, 69, 0.1);
+      border: 1px solid #ed4245;
+      color: #ed4245;
+      padding: 10px;
+      border-radius: 3px;
+      margin-bottom: 20px;
+    }
+    
+    .checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .checkbox label {
+      margin-bottom: 0;
+      text-transform: none;
+      color: #dcddde;
+      font-weight: normal;
+      font-size: 14px;
+    }
+    
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #5865f2;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="main-content">
+      <div class="auth-container">
+        <div class="auth-box register">
+          <div class="logo">
+            <i class="fas fa-graduation-cap"></i>
+            <h1>EduStake</h1>
+          </div>
+          <h2>Create an account</h2>
+          
+          <!-- Display registration errors if any -->
+          <div id="messages-container"></div>
+          
+          <form id="registerForm" method="POST">
+            <div class="form-group">
+              <label for="reg-email">EMAIL</label>
+              <input type="email" id="reg-email" name="email" required>
+            </div>
+            <div class="form-group">
+              <label for="username">USERNAME</label>
+              <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+              <label for="reg-password">PASSWORD</label>
+              <input type="password" id="reg-password" name="password" required>
+            </div>
+            <div class="form-group">
+              <label for="confirm-password">CONFIRM PASSWORD</label>
+              <input type="password" id="confirm-password" name="confirm-password" required>
+            </div>
+            
+            
+            <div class="form-group checkbox">
+              <input type="checkbox" id="terms" name="terms" required>
+              <label for="terms">I have read and agree to EduStake's <a href="#terms">Terms of Service</a> and <a href="#privacy">Privacy Policy</a></label>
+            </div>
+            
+            <button type="submit" class="btn-primary">Register</button>
+          </form>
+          
+          <div class="auth-footer">
+            <p>Already have an account? <a href="login.html">Log In</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Firebase SDK -->
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-hLnUmU12N9ivvIq7efYLe16O4DSLFx4",
+      authDomain: "edustake-ca45d.firebaseapp.com",
+      databaseURL: "https://edustake-ca45d-default-rtdb.firebaseio.com",
+      projectId: "edustake-ca45d",
+      storageBucket: "edustake-ca45d.appspot.com",
+      messagingSenderId: "885060407436",
+      appId: "1:885060407436:web:90227dc8a8f582a8726ba9",
+      measurementId: "G-R7M8MT3BN6"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    // Register form handler
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+      registerForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const username = document.getElementById('username').value;
+        const email = document.getElementById('reg-email').value;
+        const password = document.getElementById('reg-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+        const termsAccepted = document.getElementById('terms').checked;
+        
+        const messagesContainer = document.getElementById('messages-container');
+        let errors = [];
+        
+        if (!username) errors.push('Username is required');
+        if (!email) errors.push('Email is required');
+        if (!password) errors.push('Password is required');
+        if (password !== confirmPassword) errors.push('Passwords do not match');
+        if (!termsAccepted) errors.push('You must accept the Terms of Service');
+        
+        if (errors.length > 0) {
+          let errorHTML = '<div class="error-messages"><ul>';
+          errors.forEach(error => {
+            errorHTML += `<li>${error}</li>`;
+          });
+          errorHTML += '</ul></div>';
+          messagesContainer.innerHTML = errorHTML;
+          return;
+        }
+        
+        try {
+          // Create user with email and password
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          const user = userCredential.user;
+
+          try {
+            // Try to create user profile in Realtime Database
+            await set(ref(database, `users/${user.uid}`), {
+              username: username,
+              email: email,
+              profilePicture: '',
+              createdAt: new Date().toISOString(),
+              lastActive: new Date().toISOString(),
+              settings: {
+                theme: 'dark',
+                notifications: true
+              }
+            });
+          } catch (dbError) {
+            console.error('Database write error:', dbError);
+            // Even if database write fails, we can still consider registration 
+            // successful since the auth account was created
+            messagesContainer.innerHTML = '<div class="info-message"><p>Account created, but profile data could not be saved. Please see FIREBASE-SECURITY-RULES.md for instructions on fixing database permissions.</p></div>';
+            setTimeout(() => {
+              window.location.href = 'login.html';
+            }, 3000);
+            return;
+          }
+          
+          messagesContainer.innerHTML = '<div class="success-message"><p>Registration successful! Redirecting to login...</p></div>';
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 1500);
+        } catch (error) {
+          console.error('Registration error:', error);
+          messagesContainer.innerHTML = `<div class="error-messages"><p>${error.message}</p></div>`;
+        }
+      });
+    }
+  </script>
+</body>
+</html>

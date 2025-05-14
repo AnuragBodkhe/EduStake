@@ -1,0 +1,180 @@
+{
+  "users": {
+    "user123": {
+      "username": "JohnDoe",
+      "email": "john@example.com",
+      "profilePicture": "https://ui-avatars.com/api/?name=John+Doe&background=random",
+      "createdAt": 1625097600000,
+      "lastActive": 1625097600000,
+      "colleges": {
+        "college1": true,
+        "college2": true
+      },
+      "settings": {
+        "theme": "light",
+        "notifications": true
+      }
+    },
+    "user456": {
+      "username": "JaneSmith",
+      "email": "jane@example.com",
+      "profilePicture": "https://ui-avatars.com/api/?name=Jane+Smith&background=random",
+      "createdAt": 1625097600000,
+      "lastActive": 1625097600000,
+      "colleges": {
+        "college1": true
+      },
+      "settings": {
+        "theme": "dark",
+        "notifications": true
+      }
+    }
+  },
+  "colleges": {
+    "college1": {
+      "name": "Stanford University",
+      "shortName": "Stanford",
+      "logoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Stanford_Cardinal_logo.svg/1200px-Stanford_Cardinal_logo.svg.png",
+      "createdAt": 1625097600000,
+      "members": {
+        "user123": {
+          "role": "admin",
+          "joinedAt": 1625097600000
+        },
+        "user456": {
+          "role": "member",
+          "joinedAt": 1625097600000
+        }
+      },
+      "channels": {
+        "channel1": true,
+        "channel2": true
+      }
+    },
+    "college2": {
+      "name": "Massachusetts Institute of Technology",
+      "shortName": "MIT",
+      "logoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/MIT_logo.svg/1200px-MIT_logo.svg.png",
+      "createdAt": 1625097600000,
+      "members": {
+        "user123": {
+          "role": "member",
+          "joinedAt": 1625097600000
+        }
+      },
+      "channels": {
+        "channel3": true
+      }
+    }
+  },
+  "channels": {
+    "channel1": {
+      "name": "general-chat",
+      "description": "General discussion for Stanford University",
+      "collegeId": "college1",
+      "createdAt": 1625097600000,
+      "createdBy": "user123",
+      "type": "text",
+      "isPrivate": false,
+      "members": {
+        "user123": true,
+        "user456": true
+      }
+    },
+    "channel2": {
+      "name": "announcements",
+      "description": "Important announcements for Stanford University",
+      "collegeId": "college1",
+      "createdAt": 1625097600000,
+      "createdBy": "user123",
+      "type": "announcement",
+      "isPrivate": false,
+      "members": {
+        "user123": true,
+        "user456": true
+      }
+    },
+    "channel3": {
+      "name": "general-chat",
+      "description": "General discussion for MIT",
+      "collegeId": "college2",
+      "createdAt": 1625097600000,
+      "createdBy": "user123",
+      "type": "text",
+      "isPrivate": false,
+      "members": {
+        "user123": true
+      }
+    }
+  },
+  "messages": {
+    "message1": {
+      "channelId": "channel1",
+      "userId": "user123",
+      "username": "JohnDoe",
+      "userProfilePic": "https://ui-avatars.com/api/?name=John+Doe&background=random",
+      "content": "Hello everyone! Check out this campus photo!",
+      "timestamp": 1625097600000,
+      "edited": false,
+      "attachments": {
+        "file1": {
+          "type": "image",
+          "url": "https://firebasestorage.googleapis.com/v0/b/edustake-ca45d.appspot.com/o/messages%2Fchannel1%2Fcampus.jpg?alt=media",
+          "name": "campus.jpg",
+          "size": 1024000
+        }
+      }
+    },
+    "message2": {
+      "channelId": "channel1",
+      "userId": "user456",
+      "username": "JaneSmith",
+      "userProfilePic": "https://ui-avatars.com/api/?name=Jane+Smith&background=random",
+      "content": "That's a beautiful photo! Here's the schedule for next week.",
+      "timestamp": 1625097700000,
+      "edited": false,
+      "attachments": {
+        "file2": {
+          "type": "file",
+          "url": "https://firebasestorage.googleapis.com/v0/b/edustake-ca45d.appspot.com/o/messages%2Fchannel1%2Fschedule.pdf?alt=media",
+          "name": "schedule.pdf",
+          "size": 512000
+        }
+      }
+    },
+    "message3": {
+      "channelId": "channel2",
+      "userId": "user123",
+      "username": "JohnDoe",
+      "userProfilePic": "https://ui-avatars.com/api/?name=John+Doe&background=random",
+      "content": "Important announcement: New library hours starting next week!",
+      "timestamp": 1625097800000,
+      "edited": false,
+      "attachments": {}
+    }
+  },
+  "files": {
+    "file1": {
+      "name": "campus.jpg",
+      "type": "image/jpeg",
+      "size": 1024000,
+      "url": "https://firebasestorage.googleapis.com/v0/b/edustake-ca45d.appspot.com/o/messages%2Fchannel1%2Fcampus.jpg?alt=media",
+      "path": "messages/channel1/campus.jpg",
+      "messageId": "message1",
+      "channelId": "channel1",
+      "userId": "user123",
+      "uploadedAt": 1625097600000
+    },
+    "file2": {
+      "name": "schedule.pdf",
+      "type": "application/pdf",
+      "size": 512000,
+      "url": "https://firebasestorage.googleapis.com/v0/b/edustake-ca45d.appspot.com/o/messages%2Fchannel1%2Fschedule.pdf?alt=media",
+      "path": "messages/channel1/schedule.pdf",
+      "messageId": "message2",
+      "channelId": "channel1",
+      "userId": "user456",
+      "uploadedAt": 1625097700000
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    
+    "users": {
+      ".indexOn": ["email", "username"],
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid || !data.exists()"
+      }
+    },
+    
+    "presence": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    
+    "colleges": {
+      ".read": "auth != null",
+      "$collegeId": {
+        "members": {
+          "$uid": {
+            ".write": "auth != null && auth.uid == $uid"
+          }
+        }
+      }
+    },
+    
+    "channels": {
+      ".read": "auth != null",
+      "$channelId": {
+        "members": {
+          "$uid": {
+            ".write": "auth != null && auth.uid == $uid"
+          }
+        }
+      }
+    },
+    
+    "messages": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    
+    "files": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    
+    "notifications": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    }
+  }
+} 

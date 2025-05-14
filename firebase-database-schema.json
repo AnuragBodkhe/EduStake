@@ -1,0 +1,110 @@
+{
+  "users": {
+    "$userId": {
+      "username": "string",
+      "email": "string",
+      "profilePicture": "string",
+      "createdAt": "timestamp",
+      "lastActive": "timestamp",
+      "colleges": {
+        "$collegeId": true
+      },
+      "settings": {
+        "theme": "string",
+        "notifications": "boolean"
+      }
+    }
+  },
+  "colleges": {
+    "$collegeId": {
+      "name": "string",
+      "shortName": "string",
+      "logoUrl": "string",
+      "createdAt": "timestamp",
+      "members": {
+        "$userId": {
+          "role": "string",
+          "joinedAt": "timestamp"
+        }
+      },
+      "channels": {
+        "$channelId": true
+      }
+    }
+  },
+  "channels": {
+    "$channelId": {
+      "name": "string",
+      "description": "string",
+      "collegeId": "string",
+      "createdAt": "timestamp",
+      "createdBy": "string",
+      "type": "string",
+      "isPrivate": "boolean",
+      "members": {
+        "$userId": true
+      }
+    }
+  },
+  "messages": {
+    "$messageId": {
+      "channelId": "string",
+      "userId": "string",
+      "username": "string",
+      "userProfilePic": "string",
+      "content": "string",
+      "timestamp": "timestamp",
+      "edited": "boolean",
+      "editedAt": "timestamp",
+      "attachments": {
+        "$fileId": {
+          "type": "string",
+          "url": "string",
+          "name": "string",
+          "size": "number"
+        }
+      },
+      "reactions": {
+        "$reactionId": {
+          "emoji": "string",
+          "count": "number",
+          "users": {
+            "$userId": true
+          }
+        }
+      }
+    }
+  },
+  "files": {
+    "$fileId": {
+      "name": "string",
+      "type": "string",
+      "size": "number",
+      "url": "string",
+      "path": "string",
+      "messageId": "string",
+      "channelId": "string",
+      "userId": "string",
+      "uploadedAt": "timestamp"
+    }
+  },
+  "presence": {
+    "$userId": {
+      "status": "string",
+      "lastActive": "timestamp",
+      "device": "string"
+    }
+  },
+  "notifications": {
+    "$userId": {
+      "$notificationId": {
+        "type": "string",
+        "message": "string",
+        "sourceId": "string",
+        "sourceType": "string",
+        "timestamp": "timestamp",
+        "read": "boolean"
+      }
+    }
+  }
+}

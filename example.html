@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storage Manager Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .section {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        h1, h2 {
+            margin-top: 0;
+        }
+        input, textarea, button {
+            padding: 8px;
+            margin: 5px 0;
+        }
+        textarea {
+            min-height: 100px;
+            width: 100%;
+        }
+        button {
+            cursor: pointer;
+            background-color: #4a76a8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #3a5a78;
+        }
+        #status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+        }
+        #keys {
+            list-style-type: none;
+            padding: 0;
+        }
+        #keys li {
+            margin: 5px 0;
+            padding: 5px;
+            background-color: #f5f5f5;
+            border-radius: 3px;
+            display: flex;
+            justify-content: space-between;
+        }
+        #keys li:hover {
+            background-color: #e0e0e0;
+        }
+        .key-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .key-actions button {
+            padding: 2px 5px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Storage Manager Example</h1>
+        
+        <div class="section">
+            <h2>Storage Status</h2>
+            <div id="localStorage-status"></div>
+            <div id="serverStorage-status"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Save Data</h2>
+            <div>
+                <label for="save-key">Key:</label>
+                <input type="text" id="save-key" placeholder="Enter a key">
+            </div>
+            <div>
+                <label for="save-value">Value (JSON):</label>
+                <textarea id="save-value" placeholder='{"example": "value"}'></textarea>
+            </div>
+            <button id="save-btn">Save Data</button>
+        </div>
+        
+        <div class="section">
+            <h2>Get Data</h2>
+            <div>
+                <label for="get-key">Key:</label>
+                <input type="text" id="get-key" placeholder="Enter a key">
+            </div>
+            <button id="get-btn">Get Data</button>
+            <div>
+                <label for="get-result">Result:</label>
+                <textarea id="get-result" readonly></textarea>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Available Keys</h2>
+            <button id="refresh-keys">Refresh Keys</button>
+            <ul id="keys"></ul>
+        </div>
+        
+        <div id="status"></div>
+    </div>
+    
+    <script src="storageManager.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check storage availability
+            const localStorageStatusElem = document.getElementById('localStorage-status');
+            const serverStorageStatusElem = document.getElementById('serverStorage-status');
+            
+            // Check localStorage
+            const isLocalStorageSupported = StorageManager.isLocalStorageSupported();
+            localStorageStatusElem.textContent = `LocalStorage: ${isLocalStorageSupported ? 'Available' : 'Not Available'}`;
+            localStorageStatusElem.style.color = isLocalStorageSupported ? 'green' : 'red';
+            
+            // Check server storage
+            StorageManager.isServerStorageAvailable().then(isAvailable => {
+                serverStorageStatusElem.textContent = `Server Storage: ${isAvailable ? 'Available' : 'Not Available'}`;
+                serverStorageStatusElem.style.color = isAvailable ? 'green' : 'red';
+            });
+            
+            // Save data
+            document.getElementById('save-btn').addEventListener('click', function() {
+                const key = document.getElementById('save-key').value.trim();
+                const valueStr = document.getElementById('save-value').value.trim();
+                
+                if (!key) {
+                    showStatus('Please enter a key', 'error');
+                    return;
+                }
+                
+                if (!valueStr) {
+                    showStatus('Please enter a value', 'error');
+                    return;
+                }
+                
+                let value;
+                try {
+                    value = JSON.parse(valueStr);
+                } catch (e) {
+                    showStatus('Invalid JSON: ' + e.message, 'error');
+                    return;
+                }
+                
+                StorageManager.saveData(key, value)
+                    .then(result => {
+                        showStatus(`Data saved successfully${result.localStorage ? ' (localStorage only)' : ''}`, 'success');
+                        refreshKeys();
+                    })
+                    .catch(error => {
+                        showStatus('Error: ' + error.message, 'error');
+                    });
+            });
+            
+            // Get data
+            document.getElementById('get-btn').addEventListener('click', function() {
+                const key = document.getElementById('get-key').value.trim();
+                
+                if (!key) {
+                    showStatus('Please enter a key', 'error');
+                    return;
+                }
+                
+                StorageManager.getData(key)
+                    .then(result => {
+                        const resultElem = document.getElementById('get-result');
+                        resultElem.value = JSON.stringify(result.data, null, 2);
+                        showStatus(`Data retrieved successfully from ${result.source}`, 'success');
+                    })
+                    .catch(error => {
+                        document.getElementById('get-result').value = '';
+                        showStatus('Error: ' + error.message, 'error');
+                    });
+            });
+            
+            // Refresh keys
+            document.getElementById('refresh-keys').addEventListener('click', refreshKeys);
+            
+            function refreshKeys() {
+                StorageManager.getAllKeys()
+                    .then(result => {
+                        const keysElem = document.getElementById('keys');
+                        keysElem.innerHTML = '';
+                        
+                        if (result.keys.length === 0) {
+                            const li = document.createElement('li');
+                            li.textContent = 'No keys found';
+                            keysElem.appendChild(li);
+                            return;
+                        }
+                        
+                        result.keys.forEach(key => {
+                            const li = document.createElement('li');
+                            
+                            const keySpan = document.createElement('span');
+                            keySpan.textContent = key;
+                            li.appendChild(keySpan);
+                            
+                            const actionsDiv = document.createElement('div');
+                            actionsDiv.className = 'key-actions';
+                            
+                            const getBtn = document.createElement('button');
+                            getBtn.textContent = 'View';
+                            getBtn.addEventListener('click', function() {
+                                document.getElementById('get-key').value = key;
+                                document.getElementById('get-btn').click();
+                            });
+                            
+                            const deleteBtn = document.createElement('button');
+                            deleteBtn.textContent = 'Delete';
+                            deleteBtn.addEventListener('click', function() {
+                                if (confirm(`Are you sure you want to delete the key "${key}"?`)) {
+                                    StorageManager.deleteData(key)
+                                        .then(() => {
+                                            showStatus(`Key "${key}" deleted successfully`, 'success');
+                                            refreshKeys();
+                                        })
+                                        .catch(error => {
+                                            showStatus('Error: ' + error.message, 'error');
+                                        });
+                                }
+                            });
+                            
+                            actionsDiv.appendChild(getBtn);
+                            actionsDiv.appendChild(deleteBtn);
+                            li.appendChild(actionsDiv);
+                            
+                            keysElem.appendChild(li);
+                        });
+                    })
+                    .catch(error => {
+                        showStatus('Error getting keys: ' + error.message, 'error');
+                    });
+            }
+            
+            function showStatus(message, type) {
+                const statusElem = document.getElementById('status');
+                statusElem.textContent = message;
+                statusElem.className = type;
+                
+                // Auto clear after 5 seconds
+                setTimeout(() => {
+                    statusElem.textContent = '';
+                    statusElem.className = '';
+                }, 5000);
+            }
+            
+            // Initial load
+            refreshKeys();
+        });
+    </script>
+</body>
+</html> 

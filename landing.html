@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduStake - College Resource Sharing Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Landing page specific styles */
+        body {
+            overflow-y: auto;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .landing-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            background-color: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            font-size: 28px;
+            color: var(--primary);
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            color: #333;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .hero {
+            display: flex;
+            align-items: center;
+            padding: 80px 0;
+            gap: 50px;
+        }
+
+        .hero-content {
+            flex: 1;
+        }
+
+        .hero-image {
+            flex: 1;
+            text-align: center;
+        }
+
+        .hero-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero h2 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: left;
+        }
+
+        .hero p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .features {
+            padding: 80px 0;
+            background-color: #f9f9f9;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-title h2 {
+            font-size: 36px;
+            color: #333;
+        }
+
+        .section-title p {
+            font-size: 18px;
+            color: #666;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            font-size: 40px;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .support-section {
+            padding: 80px 0;
+        }
+
+        .support-container {
+            display: flex;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .support-content {
+            flex: 1;
+        }
+
+        .support-form {
+            flex: 1;
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            text-transform: none;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.2);
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .footer {
+            background-color: var(--bg-dark);
+            color: var(--text-normal);
+            padding: 50px 0 20px;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .footer-column {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .footer-column h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column ul li a {
+            color: var(--text-muted);
+            transition: color 0.3s ease;
+        }
+
+        .footer-column ul li a:hover {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background-color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .hero h2 {
+                text-align: center;
+            }
+
+            .support-container {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 15px;
+            }
+
+            .hero h2 {
+                font-size: 36px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Success message */
+        .success-message {
+            display: none;
+            background-color: var(--success);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">
+            <i class="fas fa-graduation-cap"></i>
+            <h1>EduStake</h1>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-outline" id="login-btn" onclick="window.location.href='login.html'">Log In</button>
+            <button class="btn btn-primary" id="signup-btn" onclick="window.location.href='register.html'">Sign Up</button>
+        </div>
+    </div>
+
+    <div class="landing-container">
+        <section class="hero">
+            <div class="hero-content">
+                <h2>Share & Access College Resources</h2>
+                <p>EduStake is a platform designed for students to share and access academic resources, connect with peers, and enhance their learning experience. Join our growing community of students and educators today!</p>
+                <button class="btn btn-primary" id="get-started-btn" onclick="window.location.href='register.html'">Get Started</button>
+            </div>
+            <div class="hero-image">
+                <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Students collaborating">
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="section-title">
+                <h2>Why Choose EduStake?</h2>
+                <p>Our platform offers a range of features designed to enhance your academic journey</p>
+            </div>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h3>Resource Sharing</h3>
+                    <p>Share and access study materials, notes, practice tests, and more with students from your college.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>College Communities</h3>
+                    <p>Join your college community to connect with peers, participate in discussions, and stay updated.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>Subject Channels</h3>
+                    <p>Engage in subject-specific channels to discuss topics, ask questions, and collaborate with others.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h3>Event Updates</h3>
+                    <p>Stay informed about campus events, workshops, seminars, and other academic activities.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Secure Platform</h3>
+                    <p>Your data is secure with us. We prioritize the privacy and security of our users.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Access Anywhere</h3>
+                    <p>Access EduStake from any device, anytime, anywhere. Stay connected on the go.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="college-communities-section" style="padding: 80px 0; background-color: #f5f5f5;">
+            <div class="section-title">
+                <h2>College Communities</h2>
+                <p>We are providing these communities for sharing resources</p>
+            </div>
+            <div style="display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; margin-top: 40px;">
+                <a href="https://mitwpu.edu.in/" target="_blank" style="text-decoration: none;">
+                    <div style="background-color: white; border-radius: 10px; padding: 30px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05); transition: transform 0.3s ease; text-align: center; width: 250px;" onmouseover="this.style.transform='translateY(-10px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx4R04yVrha6zNZS03cucYD5eJ8R2nP6-0LdsXFFVw_rbXF7HnOu_nIySDceVVzYDX0iY&usqp=CAU" alt="MIT WPU" style="width: 100px; height: 100px; object-fit: contain; margin-bottom: 20px;">
+                        <h3 style="font-size: 24px; margin-bottom: 10px; color: #333;">MIT WPU</h3>
+                        <p style="color: #666;">MIT World Peace University</p>
+                    </div>
+                </a>
+                <a href="https://mituniversity.ac.in/" target="_blank" style="text-decoration: none;">
+                    <div style="background-color: white; border-radius: 10px; padding: 30px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05); transition: transform 0.3s ease; text-align: center; width: 250px;" onmouseover="this.style.transform='translateY(-10px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7mnYN2fa43BvYWVNIohK_OexRwGLIlv8unw&s" alt="MIT ADT" style="width: 100px; height: 100px; object-fit: contain; margin-bottom: 20px;">
+                        <h3 style="font-size: 24px; margin-bottom: 10px; color: #333;">MIT ADT</h3>
+                        <p style="color: #666;">MIT Art, Design and Technology University</p>
+                    </div>
+                </a>
+                <div style="background-color: white; border-radius: 10px; padding: 30px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05); transition: transform 0.3s ease; text-align: center; width: 250px;" onmouseover="this.style.transform='translateY(-10px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <div style="width: 100px; height: 100px; background-color: #f9f9f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                        <i class="fas fa-university" style="font-size: 40px; color: #ccc;"></i>
+                    </div>
+                    <h3 style="font-size: 24px; margin-bottom: 10px; color: #333;">More Coming Soon</h3>
+                    <p style="color: #666;">We're adding other college communities in the future</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="support-section">
+            <div class="section-title">
+                <h2>Need Help?</h2>
+                <p>Our support team is here to assist you. Fill out the form below and we'll get back to you as soon as possible.</p>
+            </div>
+            <div class="support-container">
+                <div class="support-content">
+                    <h3>We're Here For You</h3>
+                    <p>Whether you have questions about using EduStake, want to report an issue, or have suggestions for improvement, we're eager to hear from you. Your feedback helps us make EduStake better for everyone.</p>
+                    <p>Our team typically responds within 24 hours during weekdays.</p>
+                    <div class="contact-info">
+                        <p><i class="fas fa-envelope"></i> team.edustake@gmail.com</p>
+                    </div>
+                </div>
+                <div class="support-form">
+                    <div class="success-message" id="form-success">
+                        Thank you for your message! We'll get back to you soon.
+                    </div>
+                    <div class="error-message" id="form-error" style="display: none; background-color: #f44336; color: white; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center;">
+                        Error sending message. Please try again.
+                    </div>
+                    <div class="loading-message" id="form-loading" style="display: none; background-color: #2196F3; color: white; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center;">
+                        Sending your message...
+                    </div>
+                    <form id="contact-form">
+                        <div class="form-group">
+                            <label for="name">Your Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" name="subject" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <div class="landing-container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <div class="logo">
+                        <i class="fas fa-graduation-cap"></i>
+                        <h1>EduStake</h1>
+                    </div>
+                    <p>Empowering students through resource sharing and community building.</p>
+                    <div class="social-links">
+                        <a href="https://www.facebook.com/share/16MTzMeyED/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="https://www.instagram.com/bodkheanurag?igsh=MXdlbzlzMWp3eHRnYg==" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.linkedin.com/in/anurag-bodkhe-087758292?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Features</a></li>
+                        <li><a href="#">Support</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Community Guidelines</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><a href="mailto:team.edustake@gmail.com">team.edustake@gmail.com</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 EduStake. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            // Check if EmailJS is loaded properly
+            if (typeof emailjs !== 'undefined') {
+                console.log('EmailJS SDK loaded successfully');
+                // Initialize EmailJS with your public key
+                emailjs.init("SiI4H6taTpYNeRp4q");
+            } else {
+                console.error('EmailJS SDK failed to load');
+                alert('There was an error loading the contact form. Please refresh the page and try again.');
+            }
+        })();
+    </script>
+    
+    <script>
+        // Handle navigation to login/register pages
+        document.getElementById('login-btn').addEventListener('click', function() {
+            window.location.href = 'login.html';
+        });
+
+        document.getElementById('signup-btn').addEventListener('click', function() {
+            window.location.href = 'register.html';
+        });
+
+        document.getElementById('get-started-btn').addEventListener('click', function() {
+            window.location.href = 'register.html';
+        });
+
+        // Handle form submission
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Hide any existing messages
+            document.getElementById('form-success').style.display = 'none';
+            document.getElementById('form-error').style.display = 'none';
+            
+            // Show loading message
+            document.getElementById('form-loading').style.display = 'block';
+            
+            // Get form data
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            
+            // Prepare template parameters for EmailJS
+            const templateParams = {
+                from_name: name,
+                from_email: email,
+                subject: subject,
+                message: message
+            };
+            
+            // Send email using EmailJS with improved error handling
+            console.log('Sending email with params:', JSON.stringify(templateParams));
+            console.log('Using service_l7uqzsq and template_h2iee5u');
+            
+            emailjs.send('service_l7uqzsq', 'template_h2iee5u', templateParams)
+                .then(function(response) {
+                    console.log('Email sent successfully!', response.status, response.text);
+                    
+                    // Hide loading message
+                    document.getElementById('form-loading').style.display = 'none';
+                    
+                    // Show success message
+                    document.getElementById('form-success').style.display = 'block';
+                    
+                    // Reset form
+                    document.getElementById('contact-form').reset();
+                    
+                    // Hide success message after 5 seconds
+                    setTimeout(function() {
+                        document.getElementById('form-success').style.display = 'none';
+                    }, 5000);
+                })
+                .catch(function(error) {
+                    console.error('Failed to send email. Error details:', error);
+                    
+                    // Hide loading message
+                    document.getElementById('form-loading').style.display = 'none';
+                    
+                    // Show error message
+                    document.getElementById('form-error').style.display = 'block';
+                    document.getElementById('form-error').textContent = 'Error: ' + (error.text || 'Unknown error. Please check console for details.');
+                    
+                    // Hide error message after 5 seconds
+                    setTimeout(function() {
+                        document.getElementById('form-error').style.display = 'none';
+                    }, 5000);
+                });
+        });
+    </script>
+</body>
+</html>

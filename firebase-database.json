@@ -1,0 +1,75 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+    "messages": {
+      ".indexOn": ["timestamp", "channelId"]
+    },
+    "channels": {
+      ".indexOn": ["communityId"]
+    },
+    "communities": {
+      ".indexOn": ["name"]
+    },
+    "users": {
+      ".indexOn": ["email"]
+    },
+    "files": {
+      ".indexOn": ["messageId", "userId"]
+    }
+  },
+  "messages": {
+    "$messageId": {
+      "text": "Message content goes here",
+      "timestamp": 1625097600000,
+      "userId": "user123",
+      "channelId": "channel456",
+      "attachments": {
+        "$attachmentId": {
+          "type": "image",
+          "url": "https://firebasestorage.googleapis.com/...",
+          "name": "example.jpg",
+          "size": 1024000
+        }
+      }
+    }
+  },
+  "channels": {
+    "$channelId": {
+      "name": "general",
+      "description": "General discussion channel",
+      "communityId": "community789",
+      "createdAt": 1625097600000
+    }
+  },
+  "communities": {
+    "$communityId": {
+      "name": "University of Example",
+      "shortName": "UoE",
+      "logoUrl": "https://firebasestorage.googleapis.com/...",
+      "createdAt": 1625097600000
+    }
+  },
+  "users": {
+    "$userId": {
+      "username": "johndoe",
+      "email": "john@example.com",
+      "profilePicture": "https://firebasestorage.googleapis.com/...",
+      "status": "online",
+      "communities": {
+        "$communityId": true
+      }
+    }
+  },
+  "files": {
+    "$fileId": {
+      "name": "example.jpg",
+      "type": "image/jpeg",
+      "size": 1024000,
+      "url": "https://firebasestorage.googleapis.com/...",
+      "messageId": "message123",
+      "userId": "user123",
+      "uploadedAt": 1625097600000
+    }
+  }
+}
