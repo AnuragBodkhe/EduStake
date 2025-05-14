@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Profile Editor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .quick-profile-container {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 500px;
+            margin: 20px auto;
+        }
+        
+        .profile-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .profile-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text-normal, #dcddde);
+        }
+        
+        .profile-subtitle {
+            font-size: 14px;
+            color: var(--text-muted, #a3a6aa);
+        }
+        
+        .profile-photo-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 0 auto 15px;
+            border: 3px solid var(--primary, #5865f2);
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        .profile-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .photo-upload-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            text-align: center;
+            padding: 5px 0;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .profile-photo-container:hover .photo-upload-overlay {
+            opacity: 1;
+        }
+        
+        .profile-form {
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--text-normal, #dcddde);
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            color: var(--text-normal, #dcddde);
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary, #5865f2);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #4752c4;
+        }
+        
+        .btn-secondary {
+            background-color: rgba(0, 0, 0, 0.3);
+            color: var(--text-normal, #dcddde);
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        
+        .profile-message {
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .profile-message.success {
+            background-color: rgba(67, 181, 129, 0.2);
+            color: #43b581;
+            border: 1px solid rgba(67, 181, 129, 0.3);
+        }
+        
+        .profile-message.error {
+            background-color: rgba(240, 71, 71, 0.2);
+            color: #f04747;
+            border: 1px solid rgba(240, 71, 71, 0.3);
+        }
+        
+        .profile-message.info {
+            background-color: rgba(88, 101, 242, 0.2);
+            color: #5865f2;
+            border: 1px solid rgba(88, 101, 242, 0.3);
+        }
+        
+        .preview-section {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .preview-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: var(--text-normal, #dcddde);
+        }
+        
+        .chat-preview {
+            display: flex;
+            align-items: flex-start;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+        
+        .preview-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            overflow: hidden;
+        }
+        
+        .preview-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .preview-content {
+            flex: 1;
+        }
+        
+        .preview-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .preview-username {
+            font-weight: 500;
+            color: var(--text-normal, #dcddde);
+            margin-right: 8px;
+        }
+        
+        .preview-time {
+            font-size: 12px;
+            color: var(--text-muted, #a3a6aa);
+        }
+        
+        .preview-message {
+            color: var(--text-normal, #dcddde);
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="quick-profile-container">
+        <div class="profile-header">
+            <div class="profile-title">Update Your Profile</div>
+            <div class="profile-subtitle">Your profile will be visible in chats</div>
+        </div>
+        
+        <div class="profile-photo-container">
+            <img id="profile-photo-preview" class="profile-photo" src="https://via.placeholder.com/100" alt="Profile Photo">
+            <div class="photo-upload-overlay" id="photo-upload-button">
+                <i class="fas fa-camera"></i> Change
+            </div>
+            <input type="file" id="photo-file-input" class="photo-file-input hidden" accept="image/*">
+        </div>
+        
+        <div class="profile-form">
+            <div class="form-group">
+                <label for="username-input">Display Name</label>
+                <input type="text" id="username-input" class="profile-username-input" placeholder="Enter your display name">
+            </div>
+            
+            <div class="form-actions">
+                <button class="btn btn-secondary" id="cancel-button">Cancel</button>
+                <button class="btn btn-primary" id="save-profile-button">Save Profile</button>
+            </div>
+        </div>
+        
+        <div class="preview-section">
+            <div class="preview-title">Chat Preview</div>
+            <div class="chat-preview">
+                <div class="preview-avatar">
+                    <img id="preview-avatar" src="https://via.placeholder.com/40" alt="Avatar">
+                </div>
+                <div class="preview-content">
+                    <div class="preview-header">
+                        <div id="preview-username" class="preview-username">Username</div>
+                        <div class="preview-time">Just now</div>
+                    </div>
+                    <div class="preview-message">This is how your messages will appear in chat</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="profile-message" class="profile-message"></div>
+    </div>
+    
+    <!-- Include our scripts -->
+    <script src="userProfile.js"></script>
+    <script src="profileEditor.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize profile editor
+            if (window.initializeProfileEditor) {
+                window.initializeProfileEditor();
+            }
+            
+            // Set up preview updates
+            const usernameInput = document.getElementById('username-input');
+            const previewUsername = document.getElementById('preview-username');
+            
+            usernameInput.addEventListener('input', function() {
+                previewUsername.textContent = usernameInput.value || 'Username';
+            });
+            
+            // Set up cancel button
+            const cancelButton = document.getElementById('cancel-button');
+            cancelButton.addEventListener('click', function() {
+                if (window.location.href.includes('quick-profile.html')) {
+                    // If this is the standalone page, go back
+                    window.history.back();
+                } else {
+                    // If this is embedded, hide the container
+                    const container = document.querySelector('.quick-profile-container');
+                    if (container) {
+                        container.style.display = 'none';
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

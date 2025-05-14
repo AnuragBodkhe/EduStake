@@ -228,10 +228,37 @@ function addFileToChat(file, downloadURL = null) {
     const messageElement = document.createElement('div');
     messageElement.className = 'message';
     
+    // Get current user profile information
+    let username = 'Current User';
+    let avatarUrl = 'https://ui-avatars.com/api/?name=Current+User&background=random';
+    let userId = 'current-user';
+    
+    // Try to get from UserProfileManager
+    if (window.UserProfileManager) {
+        const currentProfile = window.UserProfileManager.getCurrentProfile();
+        if (currentProfile) {
+            username = currentProfile.username || 'Current User';
+            avatarUrl = currentProfile.photoURL || window.UserProfileManager.getDefaultAvatarURL(username);
+            userId = currentProfile.uid || 'current-user';
+        }
+    } else {
+        // Fallback to localStorage
+        try {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (currentUser) {
+                username = currentUser.username || currentUser.displayName || 'Current User';
+                avatarUrl = currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random`;
+                userId = currentUser.uid || 'current-user';
+            }
+        } catch (e) {
+            console.warn('Could not get current user from localStorage:', e);
+        }
+    }
+    
     // Create message avatar
     const avatarElement = document.createElement('div');
     avatarElement.className = 'message-avatar';
-    avatarElement.innerHTML = '<img src="https://ui-avatars.com/api/?name=Current+User&background=random" alt="User Avatar">';
+    avatarElement.innerHTML = `<img src="${avatarUrl}" alt="${username}'s Avatar">`;
     
     // Create message content container
     const contentElement = document.createElement('div');
@@ -241,9 +268,12 @@ function addFileToChat(file, downloadURL = null) {
     const headerElement = document.createElement('div');
     headerElement.className = 'message-header';
     headerElement.innerHTML = `
-        <span class="message-author">Current User</span>
+        <span class="message-author">${username}</span>
         <span class="message-time">${new Date().toLocaleTimeString()}</span>
     `;
+    
+    // Add user ID as data attribute
+    messageElement.setAttribute('data-user-id', userId);
     
     // Create message body
     const bodyElement = document.createElement('div');
@@ -409,14 +439,51 @@ function uploadFile(file, index, totalFiles) {
         
         // Get current channel ID (in a real app, this would be from your state management)
         const currentChannelId = document.querySelector('.channel.active')?.getAttribute('data-channel-id') || 'general-chat';
+        const currentCommunityId = document.querySelector('.college-item.active')?.getAttribute('data-community-id') || 'general';
+        
+        // Get current user information
+        let userId = 'current-user-id';
+        let username = 'Current User';
+        try {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (currentUser) {
+                userId = currentUser.uid || userId;
+                username = currentUser.username || currentUser.displayName || username;
+            }
+        } catch (e) {
+            console.warn('Could not get current user from localStorage:', e);
+        }
         
         // Create message data
         const messageData = {
             channelId: currentChannelId,
-            userId: 'current-user-id', // In a real app, this would be the authenticated user's ID
-            username: 'Current User', // In a real app, this would be the authenticated user's username
+            userId: userId,
+            username: username,
             content: '', // Empty content for file-only messages
         };
+        
+        // Prepare metadata for resource storage
+        const metadata = {
+            communityId: currentCommunityId,
+            subjectId: currentChannelId,
+            uploaderId: userId,
+            uploaderName: username,
+            description: `Uploaded in ${currentChannelId} channel`
+        };
+        
+        // Save to ResourceStorage for permanent storage
+        let resourcePromise = Promise.resolve(null);
+        if (window.ResourceStorage) {
+            resourcePromise = window.ResourceStorage.saveFileAsResource(file, metadata)
+                .then(resource => {
+                    console.log('Resource saved permanently:', resource);
+                    return resource;
+                })
+                .catch(error => {
+                    console.error('Error saving resource permanently:', error);
+                    return null;
+                });
+        }
         
         // Upload to Firebase Storage
         firebaseUploadFile(
@@ -436,8 +503,14 @@ function uploadFile(file, index, totalFiles) {
                 // Add file to chat messages
                 addFileToChat(file, fileData.url);
                 
-                // Show success popup
-                showSuccessPopup(`${file.name} uploaded successfully`);
+                // Show success popup with info about permanent storage
+                resourcePromise.then(resource => {
+                    if (resource) {
+                        showSuccessPopup(`${file.name} uploaded successfully and saved for everyone!`);
+                    } else {
+                        showSuccessPopup(`${file.name} uploaded successfully`);
+                    }
+                });
                 
                 // Clean up file preview if this is the last file
                 if (index === totalFiles - 1) {
@@ -848,6 +921,26 @@ function uploadFile(file, index, totalFiles) {
         const messageText = messageInput.value.trim();
         if (!messageText) return;
         
+        // Get current user profile information
+        let username = currentUser.username || 'Current User';
+        let userId = currentUserId || 'current-user';
+        let avatarUrl = currentUser.photoURL || null;
+        
+        // Try to get from UserProfileManager for better avatar handling
+        if (window.UserProfileManager) {
+            const currentProfile = window.UserProfileManager.getCurrentProfile();
+            if (currentProfile) {
+                username = currentProfile.username || username;
+                avatarUrl = currentProfile.photoURL || window.UserProfileManager.getDefaultAvatarURL(username);
+                userId = currentProfile.uid || userId;
+            }
+        }
+        
+        // If still no avatar URL, create a default one
+        if (!avatarUrl) {
+            avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random`;
+        }
+        
         // Create message element
         const messageElement = document.createElement('div');
         messageElement.className = 'message';
@@ -856,24 +949,41 @@ function uploadFile(file, index, totalFiles) {
         const datetime = formatDateTime();
         
         // Add ownership data
-        messageElement.dataset.owner = currentUserId;
-        messageElement.dataset.username = currentUser.username;
+        messageElement.dataset.owner = userId;
+        messageElement.dataset.username = username;
         messageElement.dataset.timestamp = datetime.timestamp;
         
-        // Create message with header containing user info, timestamp, and delete button
+        // Create avatar HTML
+        const avatarHtml = `<div class="message-avatar"><img src="${avatarUrl}" alt="${username}'s Avatar" class="user-avatar"></div>`;
+        
+        // Create message with avatar, header containing user info, timestamp, and delete button
         messageElement.innerHTML = `
-            <div class="message-header">
-                <div class="message-sender">
-                    <span class="sender-name">${currentUser.username}</span>
-                    <span class="message-timestamp" title="${datetime.full}">${datetime.time}</span>
+            ${avatarHtml}
+            <div class="message-content-wrapper">
+                <div class="message-header">
+                    <div class="message-sender">
+                        <span class="sender-name">${username}</span>
+                        <span class="message-timestamp" title="${datetime.full}">${datetime.time}</span>
+                    </div>
+                    <button class="delete-message" title="Delete message"><i class="fas fa-trash"></i></button>
                 </div>
-                <button class="delete-message" title="Delete message"><i class="fas fa-trash"></i></button>
-            </div>
-            <div class="message-date">${datetime.date}</div>
-            <div class="message-content">
-                <p>${messageText}</p>
+                <div class="message-date">${datetime.date}</div>
+                <div class="message-content">
+                    <p>${messageText}</p>
+                </div>
             </div>
         `;
+        
+        // Store message with user profile info
+        if (window.storeCurrentMessage) {
+            window.storeCurrentMessage({
+                text: messageText,
+                userId: userId,
+                username: username,
+                photoURL: avatarUrl,
+                timestamp: Date.now()
+            });
+        }
         
         // Add to chat and scroll to bottom
         chatMessages.appendChild(messageElement);

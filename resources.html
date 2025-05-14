@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduStake Resources</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Resource Library Styles */
+        .resources-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .resources-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .resources-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-normal, #dcddde);
+        }
+        
+        .resources-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-item {
+            padding: 8px 15px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .filter-item:hover, .filter-item.active {
+            background-color: var(--primary, #5865f2);
+        }
+        
+        .resources-search {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        .resources-search input {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: none;
+            background-color: rgba(0, 0, 0, 0.2);
+            color: var(--text-normal, #dcddde);
+        }
+        
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .resource-card {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .resource-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .resource-preview {
+            height: 150px;
+            background-color: rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .resource-preview i {
+            font-size: 48px;
+            color: var(--primary, #5865f2);
+        }
+        
+        .resource-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .resource-info {
+            padding: 15px;
+        }
+        
+        .resource-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .resource-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted, #a3a6aa);
+            margin-bottom: 10px;
+        }
+        
+        .resource-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .resource-actions button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            background-color: rgba(0, 0, 0, 0.2);
+            color: var(--text-normal, #dcddde);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .resource-actions button:hover {
+            background-color: var(--primary, #5865f2);
+        }
+        
+        .no-resources {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 50px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        
+        .no-resources i {
+            font-size: 48px;
+            color: var(--text-muted, #a3a6aa);
+            margin-bottom: 15px;
+        }
+        
+        .no-resources h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .no-resources p {
+            color: var(--text-muted, #a3a6aa);
+        }
+        
+        .community-badge, .subject-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin-right: 5px;
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        .community-badge {
+            color: #43b581;
+        }
+        
+        .subject-badge {
+            color: #f04747;
+        }
+        
+        /* Modal styles */
+        .resource-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: #36393f;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 900px;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted, #a3a6aa);
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            flex: 1;
+            overflow: auto;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-body iframe, .modal-body img {
+            max-width: 100%;
+            max-height: 60vh;
+            border: none;
+        }
+        
+        .modal-footer {
+            padding: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .modal-footer button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary, #5865f2);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: rgba(0, 0, 0, 0.3);
+            color: var(--text-normal, #dcddde);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>EduStake</h1>
+            </div>
+            <div class="sidebar-menu">
+                <a href="index.html" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="chat.html" class="menu-item">
+                    <i class="fas fa-comment-alt"></i>
+                    <span>Chat</span>
+                </a>
+                <a href="resources.html" class="menu-item active">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Resources</span>
+                </a>
+                <a href="settings.html" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h2>Resource Library</h2>
+                    <p>Access all uploaded resources across communities and subjects</p>
+                </div>
+                <div class="user-menu">
+                    <div class="user-avatar">
+                        <img src="https://via.placeholder.com/40" alt="User Avatar">
+                    </div>
+                    <div class="user-info">
+                        <span class="username">Username</span>
+                        <button id="logout-btn" class="logout-btn">Logout</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resources Container -->
+            <div class="resources-container">
+                <div class="resources-header">
+                    <div class="resources-title">All Resources</div>
+                    <div class="resources-count">
+                        <span id="resource-count">0</span> resources found
+                    </div>
+                </div>
+
+                <div class="resources-filters">
+                    <div class="filter-item active" data-filter="all">All</div>
+                    <div class="filter-item" data-filter="image">Images</div>
+                    <div class="filter-item" data-filter="document">Documents</div>
+                    <div class="filter-item" data-filter="presentation">Presentations</div>
+                    <div class="filter-item" data-filter="other">Other</div>
+                </div>
+
+                <div class="resources-search">
+                    <input type="text" id="resource-search" placeholder="Search resources...">
+                </div>
+
+                <div class="resources-grid" id="resources-grid">
+                    <!-- Resources will be loaded here -->
+                    <div class="no-resources">
+                        <i class="fas fa-file-upload"></i>
+                        <h3>No resources found</h3>
+                        <p>Upload files in chat to see them here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resource Viewer Modal -->
+    <div class="resource-modal" id="resource-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modal-title">Resource Name</div>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Resource content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="modal-close-btn">Close</button>
+                <button class="btn-primary" id="modal-download-btn">Download</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    
+    <!-- Include our storage scripts -->
+    <script src="storageManager.js"></script>
+    <script src="resourceStorage.js"></script>
+    <script src="upload-animation.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize ResourceStorage if available
+            if (window.ResourceStorage) {
+                window.ResourceStorage.initialize();
+                loadAllResources();
+            } else {
+                console.error('ResourceStorage not available');
+                showNoResourcesMessage('ResourceStorage module not available');
+            }
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Update user info
+            updateUserInfo();
+        });
+        
+        function loadAllResources() {
+            if (!window.ResourceStorage) return;
+            
+            // Get the resources grid
+            const resourcesGrid = document.getElementById('resources-grid');
+            
+            // Get all resources
+            window.ResourceStorage.getAllResources().then(resources => {
+                // Update count
+                document.getElementById('resource-count').textContent = resources.length;
+                
+                if (resources.length === 0) {
+                    showNoResourcesMessage();
+                    return;
+                }
+                
+                // Clear the grid
+                resourcesGrid.innerHTML = '';
+                
+                // Sort resources by date (newest first)
+                resources.sort((a, b) => b.uploadedAt - a.uploadedAt);
+                
+                // Add each resource to the grid
+                resources.forEach(resource => {
+                    const resourceCard = createResourceCard(resource);
+                    resourcesGrid.appendChild(resourceCard);
+                });
+            }).catch(error => {
+                console.error('Error loading resources:', error);
+                showNoResourcesMessage('Error loading resources');
+            });
+        }
+        
+        function createResourceCard(resource) {
+            const card = document.createElement('div');
+            card.className = 'resource-card';
+            card.setAttribute('data-resource-id', resource.id);
+            card.setAttribute('data-resource-type', getResourceType(resource.type));
+            
+            // Determine preview content
+            let previewHtml = '';
+            if (resource.type.startsWith('image/')) {
+                // For images, show a thumbnail
+                previewHtml = `<img src="${resource.url}" alt="${resource.name}">`;
+            } else {
+                // For other files, show an icon
+                const iconClass = getFileIconClass(resource.type);
+                previewHtml = `<i class="${iconClass}"></i>`;
+            }
+            
+            // Format date
+            const uploadDate = new Date(resource.uploadedAt);
+            const formattedDate = uploadDate.toLocaleDateString() + ' ' + 
+                                 uploadDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            // Create card content
+            card.innerHTML = `
+                <div class="resource-preview">${previewHtml}</div>
+                <div class="resource-info">
+                    <div class="resource-name">${resource.name}</div>
+                    <div class="resource-badges">
+                        <span class="community-badge">${resource.communityId}</span>
+                        <span class="subject-badge">${resource.subjectId}</span>
+                    </div>
+                    <div class="resource-meta">
+                        <span class="resource-uploader">${resource.uploaderName}</span>
+                        <span class="resource-date">${formattedDate}</span>
+                    </div>
+                    <div class="resource-actions">
+                        <button class="view-btn" title="View"><i class="fas fa-eye"></i> View</button>
+                        <button class="download-btn" title="Download"><i class="fas fa-download"></i> Download</button>
+                    </div>
+                </div>
+            `;
+            
+            // Add event listeners
+            const viewBtn = card.querySelector('.view-btn');
+            const downloadBtn = card.querySelector('.download-btn');
+            
+            viewBtn.addEventListener('click', () => {
+                viewResource(resource);
+            });
+            
+            downloadBtn.addEventListener('click', () => {
+                downloadResource(resource);
+            });
+            
+            return card;
+        }
+        
+        function getResourceType(mimeType) {
+            if (mimeType.startsWith('image/')) {
+                return 'image';
+            } else if (mimeType.includes('pdf') || mimeType.includes('word') || mimeType.includes('doc')) {
+                return 'document';
+            } else if (mimeType.includes('powerpoint') || mimeType.includes('presentation') || mimeType.includes('ppt')) {
+                return 'presentation';
+            } else {
+                return 'other';
+            }
+        }
+        
+        function getFileIconClass(mimeType) {
+            if (mimeType.startsWith('image/')) {
+                return 'fas fa-image';
+            } else if (mimeType.includes('pdf')) {
+                return 'fas fa-file-pdf';
+            } else if (mimeType.includes('word') || mimeType.includes('doc')) {
+                return 'fas fa-file-word';
+            } else if (mimeType.includes('powerpoint') || mimeType.includes('presentation') || mimeType.includes('ppt')) {
+                return 'fas fa-file-powerpoint';
+            } else if (mimeType.includes('excel') || mimeType.includes('spreadsheet') || mimeType.includes('xls')) {
+                return 'fas fa-file-excel';
+            } else if (mimeType.includes('audio')) {
+                return 'fas fa-file-audio';
+            } else if (mimeType.includes('video')) {
+                return 'fas fa-file-video';
+            } else if (mimeType.includes('zip') || mimeType.includes('archive') || mimeType.includes('compressed')) {
+                return 'fas fa-file-archive';
+            } else if (mimeType.includes('code') || mimeType.includes('javascript') || mimeType.includes('html') || mimeType.includes('css')) {
+                return 'fas fa-file-code';
+            } else {
+                return 'fas fa-file';
+            }
+        }
+        
+        function viewResource(resource) {
+            // Get modal elements
+            const modal = document.getElementById('resource-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+            const modalDownloadBtn = document.getElementById('modal-download-btn');
+            
+            // Set modal title
+            modalTitle.textContent = resource.name;
+            
+            // Clear modal body
+            modalBody.innerHTML = '';
+            
+            // Set up download button
+            modalDownloadBtn.onclick = () => {
+                downloadResource(resource);
+            };
+            
+            // Determine content based on file type
+            if (resource.type.startsWith('image/')) {
+                // For images, show the image
+                const img = document.createElement('img');
+                img.src = resource.url;
+                img.alt = resource.name;
+                modalBody.appendChild(img);
+            } else if (resource.type.includes('pdf')) {
+                // For PDFs, use an iframe
+                const iframe = document.createElement('iframe');
+                iframe.src = resource.url;
+                iframe.style.width = '100%';
+                iframe.style.height = '70vh';
+                modalBody.appendChild(iframe);
+            } else {
+                // For other files, show an icon and info
+                const iconClass = getFileIconClass(resource.type);
+                modalBody.innerHTML = `
+                    <div style="text-align: center; padding: 30px;">
+                        <i class="${iconClass}" style="font-size: 72px; margin-bottom: 20px; color: var(--primary, #5865f2);"></i>
+                        <h3>${resource.name}</h3>
+                        <p>Type: ${resource.type}</p>
+                        <p>Size: ${formatFileSize(resource.size)}</p>
+                        <p>Uploaded by: ${resource.uploaderName}</p>
+                        <p>Uploaded on: ${new Date(resource.uploadedAt).toLocaleString()}</p>
+                    </div>
+                `;
+            }
+            
+            // Show the modal
+            modal.style.display = 'flex';
+        }
+        
+        function downloadResource(resource) {
+            console.log('Downloading resource:', resource.name);
+            
+            // Convert data URL to blob if needed
+            if (resource.url.startsWith('data:')) {
+                const byteString = atob(resource.url.split(',')[1]);
+                const mimeType = resource.url.split(',')[0].split(':')[1].split(';')[0];
+                const arrayBuffer = new ArrayBuffer(byteString.length);
+                const uint8Array = new Uint8Array(arrayBuffer);
+                
+                for (let i = 0; i < byteString.length; i++) {
+                    uint8Array[i] = byteString.charCodeAt(i);
+                }
+                
+                const blob = new Blob([arrayBuffer], { type: mimeType });
+                
+                // Create download link
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = resource.name;
+                document.body.appendChild(a);
+                a.click();
+                
+                // Clean up
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 100);
+            } else {
+                // For regular URLs, just open in a new tab
+                window.open(resource.url, '_blank');
+            }
+        }
+        
+        function setupEventListeners() {
+            // Filter buttons
+            const filterButtons = document.querySelectorAll('.filter-item');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    button.classList.add('active');
+                    
+                    // Apply filter
+                    const filter = button.getAttribute('data-filter');
+                    filterResources(filter);
+                });
+            });
+            
+            // Search input
+            const searchInput = document.getElementById('resource-search');
+            searchInput.addEventListener('input', () => {
+                const searchTerm = searchInput.value.toLowerCase();
+                searchResources(searchTerm);
+            });
+            
+            // Modal close buttons
+            document.getElementById('modal-close').addEventListener('click', closeModal);
+            document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+            
+            // Logout button
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                // Clear user data
+                localStorage.removeItem('currentUser');
+                
+                // Redirect to login page
+                window.location.href = 'login.html';
+            });
+        }
+        
+        function filterResources(filter) {
+            const resourceCards = document.querySelectorAll('.resource-card');
+            
+            resourceCards.forEach(card => {
+                if (filter === 'all' || card.getAttribute('data-resource-type') === filter) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Update count
+            updateVisibleCount();
+        }
+        
+        function searchResources(searchTerm) {
+            const resourceCards = document.querySelectorAll('.resource-card');
+            
+            resourceCards.forEach(card => {
+                const resourceName = card.querySelector('.resource-name').textContent.toLowerCase();
+                const communityId = card.querySelector('.community-badge').textContent.toLowerCase();
+                const subjectId = card.querySelector('.subject-badge').textContent.toLowerCase();
+                
+                if (resourceName.includes(searchTerm) || 
+                    communityId.includes(searchTerm) || 
+                    subjectId.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Update count
+            updateVisibleCount();
+        }
+        
+        function updateVisibleCount() {
+            const visibleCards = document.querySelectorAll('.resource-card[style="display: block"]').length;
+            document.getElementById('resource-count').textContent = visibleCards;
+        }
+        
+        function closeModal() {
+            document.getElementById('resource-modal').style.display = 'none';
+        }
+        
+        function showNoResourcesMessage(message = 'Upload files in chat to see them here') {
+            const resourcesGrid = document.getElementById('resources-grid');
+            resourcesGrid.innerHTML = `
+                <div class="no-resources">
+                    <i class="fas fa-file-upload"></i>
+                    <h3>No resources found</h3>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function updateUserInfo() {
+            try {
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                if (currentUser) {
+                    const usernameElement = document.querySelector('.username');
+                    if (usernameElement) {
+                        usernameElement.textContent = currentUser.username || currentUser.displayName || 'User';
+                    }
+                    
+                    const userAvatar = document.querySelector('.user-avatar img');
+                    if (userAvatar && currentUser.photoURL) {
+                        userAvatar.src = currentUser.photoURL;
+                    }
+                } else {
+                    // Redirect to login if no user
+                    window.location.href = 'login.html';
+                }
+            } catch (e) {
+                console.warn('Could not get current user from localStorage:', e);
+            }
+        }
+    </script>
+</body>
+</html>

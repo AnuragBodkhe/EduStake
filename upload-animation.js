@@ -1,6 +1,11 @@
 // Upload Animation and Chat Message Enhancement Script
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize resource storage
+    if (window.ResourceStorage) {
+        window.ResourceStorage.initialize();
+    }
+    
     // Initialize upload animation functionality
     initializeUploadAnimation();
     
@@ -12,6 +17,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize resource upload animation
     initializeResourceUploadAnimation();
+    
+    // Load saved resources for the current community and subject
+    loadSavedResources();
 });
 
 // Function to initialize upload animation
@@ -1375,14 +1383,22 @@ function handleResourceUpload(files) {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
     
-    // Get current community and channel information
-    const currentCommunity = getCurrentCommunity();
-    const currentChannel = getCurrentChannel();
+    // Get current community and subject information
+    const communityId = getCurrentCommunityId();
+    const subjectId = getCurrentSubjectId();
+    
+    // Prepare metadata for resource storage
+    const metadata = {
+        communityId: communityId,
+        subjectId: subjectId,
+        description: `Uploaded in ${subjectId} channel`
+    };
     
     // Simulate upload progress for each file
     let overallProgress = 0;
     const totalFiles = files.length;
     let completedFiles = 0;
+    const savedResources = [];
     
     // Process each file
     files.forEach((file, index) => {
@@ -1412,157 +1428,365 @@ function handleResourceUpload(files) {
                     // Update text
                     uploadText.textContent = 'Processing...';
                     
-                    // After a short delay, hide the animation and add the files to chat
-                    setTimeout(() => {
-                        // Hide upload animation
-                        uploadAnimation.classList.remove('active');
-                        
-                        // Add files to chat and save to local storage
-                        files.forEach(file => {
-                            // Save file to local storage
-                            saveResourceToLocalStorage(file, currentCommunity, currentChannel);
-                            
-                            // If the original uploadFile function exists, use it
-                            if (typeof window.uploadFile === 'function') {
-                                window.uploadFile(file, files.indexOf(file), files.length);
-                            } else {
-                                // Otherwise use our sendMessageWithAttachment function
-                                sendMessageWithAttachment(file);
-                            }
-                        });
-                        
-                        // Show success message
-                        if (typeof showToast === 'function') {
-                            if (files.length > 1) {
-                                showToast(`${files.length} files uploaded successfully and saved for all users!`, 'success');
-                            } else {
-                                showToast(`${files[0].name} uploaded successfully and saved for all users!`, 'success');
-                            }
+                    // Save files to permanent storage
+                    const savePromises = files.map(file => {
+                        // If ResourceStorage is available, save the file permanently
+                        if (window.ResourceStorage) {
+                            return window.ResourceStorage.saveFileAsResource(file, metadata)
+                                .then(resource => {
+                                    savedResources.push(resource);
+                                    return resource;
+                                })
+                                .catch(error => {
+                                    console.error('Error saving resource:', error);
+                                    return null;
+                                });
+                        } else {
+                            return Promise.resolve(null);
                         }
-                    }, 500);
+                    });
+                    
+                    // After all files are saved, add them to the chat
+                    Promise.all(savePromises).then(() => {
+                        // After a short delay, hide the animation and add the files to chat
+                        setTimeout(() => {
+                            // Hide upload animation
+                            uploadAnimation.classList.remove('active');
+                            
+                            // Add files to chat
+                            files.forEach(file => {
+                                // If the original uploadFile function exists, use it
+                                if (typeof window.uploadFile === 'function') {
+                                    window.uploadFile(file, files.indexOf(file), files.length);
+                                } else {
+                                    // Otherwise use our sendMessageWithAttachment function
+                                    sendMessageWithAttachment(file);
+                                }
+                            });
+                            
+                            // Show success message
+                            if (typeof showToast === 'function') {
+                                if (files.length > 1) {
+                                    showToast(`${files.length} files uploaded successfully and saved for everyone!`, 'success');
+                                } else {
+                                    showToast(`${files[0].name} uploaded successfully and saved for everyone!`, 'success');
+                                }
+                            }
+                        }, 500);
+                    });
                 }
             }
         }, 200);
     });
 }
 
-// Function to save a resource to local storage
-function saveResourceToLocalStorage(file, community, channel) {
-    console.log(`Saving resource ${file.name} to local storage for ${community}/${channel}`);
-    
-    // Create a unique ID for the resource
-    const resourceId = `resource_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    // Convert file to base64 for storage
-    const reader = new FileReader();
-    reader.onload = function(event) {
-        const fileData = {
-            id: resourceId,
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            community: community,
-            channel: channel,
-            uploadedBy: getCurrentUsername(),
-            uploadedAt: new Date().toISOString(),
-            data: event.target.result, // Base64 data
-        };
-        
-        // Get existing resources from local storage
-        const resources = getResourcesFromLocalStorage();
-        
-        // Add new resource
-        resources.push(fileData);
-        
-        // Save back to local storage
-        localStorage.setItem('edustake_resources', JSON.stringify(resources));
-        
-        console.log(`Resource ${file.name} saved to local storage with ID ${resourceId}`);
-        
-        // Update resource list in UI if it exists
-        updateResourceListUI();
-    };
-    
-    // Read file as data URL (base64)
-    reader.readAsDataURL(file);
-}
-
-// Function to get resources from local storage
-function getResourcesFromLocalStorage() {
-    const resourcesJson = localStorage.getItem('edustake_resources');
-    return resourcesJson ? JSON.parse(resourcesJson) : [];
-}
-
-// Function to get resources for a specific community and channel
-function getResourcesForCommunityAndChannel(community, channel) {
-    const resources = getResourcesFromLocalStorage();
-    
-    // If both community and channel are specified, filter by both
-    if (community && channel) {
-        return resources.filter(resource => 
-            resource.community === community && resource.channel === channel
-        );
+// Function to load saved resources for the current community and subject
+function loadSavedResources() {
+    // Check if ResourceStorage is available
+    if (!window.ResourceStorage) {
+        console.warn('ResourceStorage not available, cannot load saved resources');
+        return;
     }
-    // If only community is specified, filter by community
-    else if (community) {
-        return resources.filter(resource => resource.community === community);
-    }
-    // If no filters, return all resources
-    return resources;
-}
-
-// Function to get the current community name
-function getCurrentCommunity() {
-    // Try to get from active community element
-    const activeCommunity = document.querySelector('.college-item.active');
-    if (activeCommunity) {
-        const communityName = activeCommunity.querySelector('.college-name');
-        if (communityName) {
-            return communityName.textContent.trim();
+    
+    // Get current community and subject
+    const communityId = getCurrentCommunityId();
+    const subjectId = getCurrentSubjectId();
+    
+    console.log(`Loading saved resources for community ${communityId} and subject ${subjectId}`);
+    
+    // Search for resources matching the current community and subject
+    window.ResourceStorage.searchResources({
+        communityId: communityId,
+        subjectId: subjectId
+    }).then(resources => {
+        if (resources.length === 0) {
+            console.log('No saved resources found for this community and subject');
+            return;
         }
-    }
-    
-    // Try to get from community header
-    const communityHeader = document.querySelector('.community-header h2');
-    if (communityHeader) {
-        return communityHeader.textContent.trim();
-    }
-    
-    // Fallback to default
-    return 'General';
+        
+        console.log(`Found ${resources.length} saved resources`);
+        
+        // Get the chat messages container
+        const chatMessages = document.querySelector('.chat-messages');
+        if (!chatMessages) {
+            console.warn('Chat messages container not found');
+            return;
+        }
+        
+        // Check if we've already added a resources section
+        if (document.querySelector('.saved-resources-section')) {
+            return;
+        }
+        
+        // Create a section for saved resources
+        const resourcesSection = document.createElement('div');
+        resourcesSection.className = 'saved-resources-section';
+        
+        // Add a header
+        const header = document.createElement('div');
+        header.className = 'resources-header';
+        header.innerHTML = `
+            <h3>Saved Resources (${resources.length})</h3>
+            <p>These resources have been shared in this channel</p>
+        `;
+        resourcesSection.appendChild(header);
+        
+        // Add resources list
+        const resourcesList = document.createElement('div');
+        resourcesList.className = 'resources-list';
+        
+        // Add each resource
+        resources.forEach(resource => {
+            const resourceItem = createResourceItem(resource);
+            resourcesList.appendChild(resourceItem);
+        });
+        
+        resourcesSection.appendChild(resourcesList);
+        
+        // Add to chat messages
+        chatMessages.appendChild(resourcesSection);
+        
+        // Add CSS for the resources section
+        addResourcesSectionStyles();
+    }).catch(error => {
+        console.error('Error loading saved resources:', error);
+    });
 }
 
-// Function to get the current channel name
-function getCurrentChannel() {
-    // Try to get from active channel element
+// Function to create a resource item element
+function createResourceItem(resource) {
+    const resourceItem = document.createElement('div');
+    resourceItem.className = 'resource-item';
+    resourceItem.setAttribute('data-resource-id', resource.id);
+    
+    // Determine resource icon based on type
+    let iconHtml = '<i class="fas fa-file"></i>';
+    if (resource.type.startsWith('image/')) {
+        iconHtml = '<i class="fas fa-image"></i>';
+    } else if (resource.type.includes('pdf')) {
+        iconHtml = '<i class="fas fa-file-pdf"></i>';
+    } else if (resource.type.includes('word') || resource.type.includes('doc')) {
+        iconHtml = '<i class="fas fa-file-word"></i>';
+    } else if (resource.type.includes('powerpoint') || resource.type.includes('presentation') || resource.type.includes('ppt')) {
+        iconHtml = '<i class="fas fa-file-powerpoint"></i>';
+    }
+    
+    // Format date
+    const uploadDate = new Date(resource.uploadedAt);
+    const formattedDate = uploadDate.toLocaleDateString() + ' ' + uploadDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    // Create resource item content
+    resourceItem.innerHTML = `
+        <div class="resource-icon">${iconHtml}</div>
+        <div class="resource-info">
+            <div class="resource-name">${resource.name}</div>
+            <div class="resource-meta">
+                <span class="resource-uploader">Uploaded by ${resource.uploaderName}</span>
+                <span class="resource-date">${formattedDate}</span>
+            </div>
+        </div>
+        <div class="resource-actions">
+            <button class="view-resource" title="View"><i class="fas fa-eye"></i></button>
+            <button class="download-resource" title="Download"><i class="fas fa-download"></i></button>
+        </div>
+    `;
+    
+    // Add event listeners
+    const viewButton = resourceItem.querySelector('.view-resource');
+    const downloadButton = resourceItem.querySelector('.download-resource');
+    
+    viewButton.addEventListener('click', () => {
+        viewSavedResource(resource);
+    });
+    
+    downloadButton.addEventListener('click', () => {
+        downloadSavedResource(resource);
+    });
+    
+    return resourceItem;
+}
+
+// Function to view a saved resource
+function viewSavedResource(resource) {
+    console.log(`Viewing saved resource: ${resource.name}`);
+    
+    // Convert data URL to blob
+    if (resource.url.startsWith('data:')) {
+        const byteString = atob(resource.url.split(',')[1]);
+        const mimeType = resource.url.split(',')[0].split(':')[1].split(';')[0];
+        const arrayBuffer = new ArrayBuffer(byteString.length);
+        const uint8Array = new Uint8Array(arrayBuffer);
+        
+        for (let i = 0; i < byteString.length; i++) {
+            uint8Array[i] = byteString.charCodeAt(i);
+        }
+        
+        const blob = new Blob([arrayBuffer], { type: mimeType });
+        const file = new File([blob], resource.name, { type: resource.type });
+        
+        // View the file
+        viewFile(file);
+    } else {
+        // For non-data URLs, create a simulated file
+        const fileExtension = resource.name.split('.').pop().toLowerCase();
+        createSimulatedFileForViewing(resource.name, fileExtension);
+    }
+}
+
+// Function to download a saved resource
+function downloadSavedResource(resource) {
+    console.log(`Downloading saved resource: ${resource.name}`);
+    
+    // Convert data URL to blob
+    if (resource.url.startsWith('data:')) {
+        const byteString = atob(resource.url.split(',')[1]);
+        const mimeType = resource.url.split(',')[0].split(':')[1].split(';')[0];
+        const arrayBuffer = new ArrayBuffer(byteString.length);
+        const uint8Array = new Uint8Array(arrayBuffer);
+        
+        for (let i = 0; i < byteString.length; i++) {
+            uint8Array[i] = byteString.charCodeAt(i);
+        }
+        
+        const blob = new Blob([arrayBuffer], { type: mimeType });
+        const file = new File([blob], resource.name, { type: resource.type });
+        
+        // Download the file
+        downloadFile(file);
+    } else {
+        // For non-data URLs, simulate download
+        simulateFileDownload(resource.name);
+    }
+}
+
+// Function to add CSS styles for the resources section
+function addResourcesSectionStyles() {
+    if (document.getElementById('resources-section-styles')) {
+        return;
+    }
+    
+    const style = document.createElement('style');
+    style.id = 'resources-section-styles';
+    style.textContent = `
+        .saved-resources-section {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        
+        .resources-header {
+            margin-bottom: 15px;
+        }
+        
+        .resources-header h3 {
+            margin: 0 0 5px 0;
+            font-size: 18px;
+            color: var(--text-normal, #dcddde);
+        }
+        
+        .resources-header p {
+            margin: 0;
+            font-size: 14px;
+            color: var(--text-muted, #a3a6aa);
+        }
+        
+        .resources-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 10px;
+        }
+        
+        .resource-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .resource-item:hover {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        .resource-icon {
+            font-size: 24px;
+            margin-right: 10px;
+            color: var(--primary, #5865f2);
+        }
+        
+        .resource-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .resource-name {
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-normal, #dcddde);
+        }
+        
+        .resource-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted, #a3a6aa);
+            margin-top: 3px;
+        }
+        
+        .resource-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .resource-actions button {
+            background: none;
+            border: none;
+            color: var(--text-muted, #a3a6aa);
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 3px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        
+        .resource-actions button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-normal, #dcddde);
+        }
+    `;
+    
+    document.head.appendChild(style);
+}
+
+// Helper function to get current community ID
+function getCurrentCommunityId() {
+    // Try to get from active element
+    const activeCollege = document.querySelector('.college-item.active');
+    if (activeCollege) {
+        return activeCollege.getAttribute('data-community-id') || 
+               activeCollege.querySelector('.college-name')?.textContent || 
+               'general';
+    }
+    
+    // Fallback to localStorage
+    return localStorage.getItem('currentCommunityId') || 'general';
+}
+
+// Helper function to get current subject ID
+function getCurrentSubjectId() {
+    // Try to get from active element
     const activeChannel = document.querySelector('.channel.active');
     if (activeChannel) {
-        const channelName = activeChannel.querySelector('span');
-        if (channelName) {
-            return channelName.textContent.trim();
-        }
+        return activeChannel.getAttribute('data-channel-id') || 
+               activeChannel.querySelector('.channel-name')?.textContent || 
+               'general-chat';
     }
     
-    // Fallback to default
-    return 'general-chat';
-}
-
-// Function to get the current username
-function getCurrentUsername() {
-    // Try to get from user profile
-    const userProfile = JSON.parse(localStorage.getItem('currentUser'));
-    if (userProfile && userProfile.username) {
-        return userProfile.username;
-    }
-    
-    // Try to get from DOM
-    const usernameElement = document.querySelector('.username');
-    if (usernameElement) {
-        return usernameElement.textContent.trim();
-    }
-    
-    // Fallback to default
-    return 'Anonymous User';
+    // Fallback to localStorage
+    return localStorage.getItem('currentSubjectId') || 'general-chat';
 }
 
 // Function to set up drag and drop for resource uploads

@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduStake Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Profile Page Styles */
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .profile-avatar-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .profile-avatar {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-upload-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 8px 0;
+            text-align: center;
+            color: white;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+            opacity: 0;
+        }
+        
+        .profile-avatar-container:hover .avatar-upload-overlay {
+            opacity: 1;
+        }
+        
+        .profile-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--text-normal, #dcddde);
+        }
+        
+        .profile-email {
+            font-size: 16px;
+            color: var(--text-muted, #a3a6aa);
+            margin-bottom: 20px;
+        }
+        
+        .profile-form {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--text-normal, #dcddde);
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: none;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: var(--text-normal, #dcddde);
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary, #5865f2);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #4752c4;
+        }
+        
+        .btn-secondary {
+            background-color: rgba(0, 0, 0, 0.3);
+            color: var(--text-normal, #dcddde);
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        
+        .profile-section {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-normal, #dcddde);
+        }
+        
+        .preview-container {
+            margin-top: 20px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .preview-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: var(--text-normal, #dcddde);
+        }
+        
+        .chat-message-preview {
+            display: flex;
+            align-items: flex-start;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+        
+        .message-content {
+            flex: 1;
+        }
+        
+        .message-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .message-username {
+            font-weight: 500;
+            color: var(--text-normal, #dcddde);
+            margin-right: 8px;
+        }
+        
+        .message-time {
+            font-size: 12px;
+            color: var(--text-muted, #a3a6aa);
+        }
+        
+        .message-text {
+            color: var(--text-normal, #dcddde);
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 4px;
+            color: white;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .toast.success {
+            background-color: #43b581;
+        }
+        
+        .toast.error {
+            background-color: #f04747;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>EduStake</h1>
+            </div>
+            <div class="sidebar-menu">
+                <a href="index.html" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="chat.html" class="menu-item">
+                    <i class="fas fa-comment-alt"></i>
+                    <span>Chat</span>
+                </a>
+                <a href="resources.html" class="menu-item">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Resources</span>
+                </a>
+                <a href="profile.html" class="menu-item active">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a>
+                <a href="settings.html" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h2>User Profile</h2>
+                    <p>Manage your profile information and settings</p>
+                </div>
+                <div class="user-menu">
+                    <div class="user-avatar">
+                        <img id="top-bar-avatar" src="https://via.placeholder.com/40" alt="User Avatar">
+                    </div>
+                    <div class="user-info">
+                        <span id="top-bar-username" class="username">Username</span>
+                        <button id="logout-btn" class="logout-btn">Logout</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Container -->
+            <div class="profile-container">
+                <div class="profile-header">
+                    <div class="profile-avatar-container">
+                        <img id="profile-avatar" class="profile-avatar" src="https://via.placeholder.com/150" alt="Profile Avatar">
+                        <div class="avatar-upload-overlay" id="avatar-upload-trigger">
+                            <i class="fas fa-camera"></i> Change Photo
+                        </div>
+                        <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
+                    </div>
+                    <h2 id="profile-name" class="profile-name">Username</h2>
+                    <p id="profile-email" class="profile-email">user@example.com</p>
+                </div>
+
+                <div class="profile-form">
+                    <div class="form-group">
+                        <label for="username">Display Name</label>
+                        <input type="text" id="username" placeholder="Enter your display name">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" placeholder="Enter your email address">
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" id="reset-btn">Reset</button>
+                        <button class="btn btn-primary" id="save-btn">Save Changes</button>
+                    </div>
+                </div>
+
+                <div class="profile-section">
+                    <h3 class="section-title">Profile Preview</h3>
+                    <p>This is how your profile will appear to others in chats and messages.</p>
+                    
+                    <div class="preview-container">
+                        <div class="preview-title">Chat Message Preview</div>
+                        <div class="chat-message-preview">
+                            <img id="preview-avatar" class="message-avatar" src="https://via.placeholder.com/40" alt="Avatar">
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <div id="preview-username" class="message-username">Username</div>
+                                    <div class="message-time">Today at 12:34 PM</div>
+                                </div>
+                                <div class="message-text">This is a preview of how your messages will appear in chats.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span id="toast-message"></span>
+    </div>
+
+    <!-- Include Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    
+    <!-- Include our scripts -->
+    <script src="userProfile.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize UserProfileManager if available
+            if (window.UserProfileManager) {
+                window.UserProfileManager.initialize();
+                loadUserProfile();
+            } else {
+                console.error('UserProfileManager not available');
+                showToast('Profile management is not available', 'error');
+            }
+            
+            // Set up event listeners
+            setupEventListeners();
+        });
+        
+        function loadUserProfile() {
+            // Get current user profile
+            const profile = window.UserProfileManager.getCurrentProfile();
+            
+            if (!profile) {
+                // Redirect to login if no profile
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Update profile display
+            updateProfileDisplay(profile);
+        }
+        
+        function updateProfileDisplay(profile) {
+            // Update profile header
+            document.getElementById('profile-name').textContent = profile.username || 'Username';
+            document.getElementById('profile-email').textContent = profile.email || 'No email set';
+            
+            // Update form fields
+            document.getElementById('username').value = profile.username || '';
+            document.getElementById('email').value = profile.email || '';
+            
+            // Update avatars
+            const avatarUrl = profile.photoURL || window.UserProfileManager.getDefaultAvatarURL(profile.username || 'User');
+            
+            document.getElementById('profile-avatar').src = avatarUrl;
+            document.getElementById('top-bar-avatar').src = avatarUrl;
+            document.getElementById('preview-avatar').src = avatarUrl;
+            
+            // Update preview
+            document.getElementById('preview-username').textContent = profile.username || 'Username';
+            document.getElementById('top-bar-username').textContent = profile.username || 'Username';
+        }
+        
+        function setupEventListeners() {
+            // Avatar upload
+            document.getElementById('avatar-upload-trigger').addEventListener('click', function() {
+                document.getElementById('avatar-upload').click();
+            });
+            
+            document.getElementById('avatar-upload').addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                // Check file type
+                if (!file.type.startsWith('image/')) {
+                    showToast('Please select an image file', 'error');
+                    return;
+                }
+                
+                // Check file size (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('Image size should be less than 5MB', 'error');
+                    return;
+                }
+                
+                // Upload profile photo
+                if (window.UserProfileManager) {
+                    window.UserProfileManager.updateProfilePhoto(file)
+                        .then(profile => {
+                            updateProfileDisplay(profile);
+                            showToast('Profile photo updated successfully', 'success');
+                        })
+                        .catch(error => {
+                            console.error('Error updating profile photo:', error);
+                            showToast('Failed to update profile photo', 'error');
+                        });
+                }
+            });
+            
+            // Save button
+            document.getElementById('save-btn').addEventListener('click', function() {
+                const username = document.getElementById('username').value.trim();
+                const email = document.getElementById('email').value.trim();
+                
+                if (!username) {
+                    showToast('Please enter a display name', 'error');
+                    return;
+                }
+                
+                // Get current user
+                try {
+                    const currentUserJson = localStorage.getItem('currentUser');
+                    if (!currentUserJson) {
+                        showToast('You are not logged in', 'error');
+                        return;
+                    }
+                    
+                    const currentUser = JSON.parse(currentUserJson);
+                    if (!currentUser || !currentUser.uid) {
+                        showToast('Invalid user data', 'error');
+                        return;
+                    }
+                    
+                    // Update profile
+                    if (window.UserProfileManager) {
+                        const updatedProfile = window.UserProfileManager.updateProfile(currentUser.uid, {
+                            username,
+                            email,
+                            displayName: username // For compatibility
+                        });
+                        
+                        updateProfileDisplay(updatedProfile);
+                        showToast('Profile updated successfully', 'success');
+                    }
+                } catch (e) {
+                    console.error('Error updating profile:', e);
+                    showToast('Failed to update profile', 'error');
+                }
+            });
+            
+            // Reset button
+            document.getElementById('reset-btn').addEventListener('click', function() {
+                loadUserProfile();
+                showToast('Profile changes reset', 'success');
+            });
+            
+            // Logout button
+            document.getElementById('logout-btn').addEventListener('click', function() {
+                // Clear user data
+                localStorage.removeItem('currentUser');
+                
+                // Redirect to login page
+                window.location.href = 'login.html';
+            });
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            
+            // Set message and type
+            toastMessage.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                toast.className = `toast ${type}`;
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
