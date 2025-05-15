@@ -148,7 +148,7 @@ For any queries regarding this project, please contact:
 ![Login Page](./assets/14225.png)
 
 ### Dashboard - Resource Sharing
-![Dashboard](./assets/16262.png
+![Dashboard](./assets/16262.png)
 
 ### Landing Page - Features
 ![Landing Page Features](./assets/156255.png)
