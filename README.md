@@ -1,196 +1,139 @@
-# EduShare Dashboard
+# EduStake - College Resource Sharing Platform
 
-A modern dashboard for college communities that allows students to chat, share study resources, and collaborate in study groups.
+A modern, responsive platform for college students to share educational resources, collaborate in study groups, and communicate with peers. Built with HTML, CSS, JavaScript, and Firebase integration for real-time data management and authentication.
 
-## Features
+## 🌟 Features
 
-- Left sidebar with college communities
-- Add new colleges to your communities
-- Chat functionality with real-time messaging
-- Share study resources (PDF, Word, PowerPoint, Images)
-- Voice channels for study rooms and collaboration
-- Modern, responsive interface
+- **User Authentication**
+  - Secure login and registration system
+  - Firebase authentication integration
+  - User profile management
+  - Session-based user management
 
-## Structure
+- **Resource Sharing**
+  - Upload and share study materials
+  - Support for various file formats (PDF, Word, PowerPoint, Images)
+  - File preview functionality
+  - Download resources
 
-- `index.html` - Main HTML structure
-- `styles.css` - All styling for the application
-- `script.js` - JavaScript functionality
-- `assets/` - Directory for images and other assets
+- **Community Interaction**
+  - College communities
+  - Real-time chat functionality
+  - Voice channels for study rooms
+  - Event updates and notifications
 
-## How to Run
+- **Responsive Design**
+  - Mobile-first approach
+  - Cross-browser compatibility
+  - Modern UI/UX with smooth animations
+  - Dark mode support
 
-1. Clone or download this repository
-2. Open the `index.html` file in a web browser
-3. That's it! No server or build process required.
+## 🚀 Technologies Used
 
-## Usage
+- **Frontend**
+  - HTML5
+  - CSS3 (with CSS variables)
+  - Vanilla JavaScript
+  - Font Awesome Icons
 
-### Adding a College
+- **Backend & Storage**
+  - Firebase Authentication
+  - Firebase Realtime Database
+  - Firebase Storage
+  - EmailJS for contact form
 
-1. Click the "+" button next to "COLLEGE COMMUNITIES" in the left sidebar
-2. Enter the college name and abbreviation
-3. Choose a color for the college icon
-4. Click "Add College"
+- **Data Management**
+  - Hybrid storage system (localStorage + server)
+  - Real-time data synchronization
+  - Offline capability
 
-### Sending Messages
+## 📥 Installation
 
-1. Type your message in the input box at the bottom of the chat
-2. Press Enter or click the send button
-
-### Attaching Files
-
-In a real implementation, clicking the attachment icon would allow you to select files to upload. In this demo, it shows an alert message.
-
-## Technologies Used
-
-- HTML5
-- CSS3 (with CSS variables)
-- Vanilla JavaScript (no frameworks)
-
-## License
-
-This project is open source and available for educational purposes. 
-
-# PHP and localStorage Storage System
-
-This is a hybrid storage system that combines the persistence of server-side PHP storage with the speed and offline capabilities of client-side localStorage.
-
-## Files Overview
-
-- `saveData.php` - Saves data on the server
-- `getData.php` - Retrieves data from the server
-- `deleteData.php` - Deletes data from the server
-- `storageManager.js` - Client-side JavaScript library for interacting with both localStorage and the PHP backend
-- `example.html` - Example page demonstrating how to use the storage system
-
-## Features
-
-- Seamless fallback between server and client storage
-- Works offline with localStorage when server is unavailable
-- Automatic synchronization between localStorage and server when connection is restored
-- Simple Promise-based API
-- JSON data storage and retrieval
-- Comprehensive error handling
-
-## Requirements
-
-- PHP 5.6+ web server
-- Modern browser with localStorage support (for client-side storage)
-
-## Installation
-
-1. Upload all PHP files to your web server
-2. Make sure the `data` directory is writable by the web server (the system will try to create it if it doesn't exist)
-3. Include `storageManager.js` in your HTML files
-
-```html
-<script src="storageManager.js"></script>
+1. Clone the repository:
+```bash
+git clone https://github.com/AnuragBodkhe/EduStake.git
 ```
 
-## Usage
+2. Open the project in your preferred code editor
 
-### Save Data
+3. Set up Firebase:
+   - Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+   - Enable Authentication, Realtime Database, and Storage
+   - Update the Firebase configuration in `firebase-config.js`
 
-```javascript
-// Save data with a key
-StorageManager.saveData('user_preferences', {
-  theme: 'dark',
-  fontSize: 14,
-  notifications: true
-})
-.then(result => {
-  console.log('Data saved successfully');
-})
-.catch(error => {
-  console.error('Failed to save data:', error);
-});
-```
+4. Configure EmailJS (for contact form):
+   - Create an account at [EmailJS](https://www.emailjs.com/)
+   - Set up an email service and template
+   - Update the EmailJS configuration in the contact form section
 
-### Get Data
+5. Open `index.html` in a web browser or use a local development server
 
-```javascript
-// Retrieve data by key
-StorageManager.getData('user_preferences')
-.then(result => {
-  console.log('Data retrieved:', result.data);
-  console.log('Source:', result.source); // 'localStorage' or 'server'
-})
-.catch(error => {
-  console.error('Failed to retrieve data:', error);
-});
-```
+## 🔧 Configuration
 
-### Delete Data
+1. Firebase Security Rules:
+   - Update database rules in `firebase-database-rules.json`
+   - Update storage rules in `firebase-storage-rules.json`
+   - See `FIREBASE-SECURITY-RULES.md` for detailed instructions
 
-```javascript
-// Delete data by key
-StorageManager.deleteData('user_preferences')
-.then(result => {
-  console.log('Data deleted successfully');
-})
-.catch(error => {
-  console.error('Failed to delete data:', error);
-});
-```
+2. Email Configuration:
+   - Follow the setup guide in `emailjs-setup.md`
+   - Troubleshooting tips available in `emailjs-troubleshooting.md`
 
-### Get All Keys
+## 📱 Features Overview
 
-```javascript
-// Get all available storage keys
-StorageManager.getAllKeys()
-.then(result => {
-  console.log('Available keys:', result.keys);
-})
-.catch(error => {
-  console.error('Failed to get keys:', error);
-});
-```
+### Dashboard
+- College communities sidebar
+- Resource sharing
+- Real-time chat
+- Voice channels for study rooms
 
-### Check Storage Availability
+### User Profile
+- Personal information management
+- Profile picture customization
+- Resource management
+- Activity tracking
 
-```javascript
-// Check if localStorage is supported
-const isLocalStorageSupported = StorageManager.isLocalStorageSupported();
-console.log('localStorage supported:', isLocalStorageSupported);
+### Resource Library
+- Upload and share study materials
+- Categorized resources
+- Search functionality
+- File preview and download
 
-// Check if server storage is available
-StorageManager.isServerStorageAvailable()
-.then(isAvailable => {
-  console.log('Server storage available:', isAvailable);
-});
-```
+### Community Interaction
+- Join college communities
+- Real-time messaging
+- Event updates
+- Collaboration tools
 
-## How It Works
+## 💾 Storage System
 
-1. When saving data:
-   - First attempts to save to localStorage for immediate availability
-   - Then tries to save to the server for persistence
-   - If server is unavailable, continues with localStorage only
+EduStake uses a hybrid storage system that combines:
 
-2. When retrieving data:
-   - First checks localStorage for immediate access
-   - Returns data from localStorage if available
-   - Also attempts to fetch from server in the background for sync
-   - If data isn't in localStorage, fetches from server
+1. **localStorage** - For immediate access and offline capability
+2. **Firebase Storage** - For file storage and sharing
+3. **Firebase Realtime Database** - For user data and chat messages
+4. **Server-side storage** - For persistent data across devices
 
-3. When deleting data:
-   - Removes from both localStorage and server
+The system automatically synchronizes data between these storage methods to provide a seamless user experience.
 
-## Security Considerations
+## 📝 Developer
 
-This system is designed for convenience, not for highly sensitive data. Consider these security enhancements for production use:
+**Anurag Bodkhe**
+- LinkedIn: [Anurag Bodkhe](https://www.linkedin.com/in/anurag-bodkhe-087758292)
+- Institution: MIT Art, Design and Technology University, Pune
 
-- Add authentication to the PHP endpoints
-- Implement rate limiting
-- Use HTTPS
-- Sanitize all inputs (the current implementation does some basic sanitization)
-- Consider encryption for sensitive data
+## 📄 License
 
-## Example
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-Open `example.html` in your browser to see a working demonstration of the storage system.
+## 🏫 Academic Project
 
-## License
+This project was developed as part of the academic curriculum at MIT Art, Design and Technology University, demonstrating practical implementation of web development concepts and educational resource sharing solutions.
 
-This code is available under the MIT License. 
+## 📞 Contact
+
+For any queries regarding this project, please contact:
+- **Phone:** 9022977272
+- **Location:** MIT Art, Design and Technology University
+- **Address:** Rajbaugh, Loni Kalbhor, Solapur Highway
+- **City:** Pune - 412201, Maharashtra, India
