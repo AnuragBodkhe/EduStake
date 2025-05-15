@@ -155,8 +155,8 @@ For any queries regarding this project, please contact:
 ### College Communities
 ![College Communities](https://github.com/user-attachments/assets/3be7f690-5eec-4217-9bbe-84b596a7dba6)
 
-### Resource Sharing Platform
-![Resource Sharing](https://github.com/user-attachments/assets/b9b010a4-428c-435a-b16a-7e29c85d5a65)
+### Contact Support
+![Contact Support](https://github.com/user-attachments/assets/b9b010a4-428c-435a-b16a-7e29c85d5a65)
 
-### Mobile Responsive Design
-![Mobile Responsive](https://github.com/user-attachments/assets/de4739ea-a6ff-4968-a093-c324ff00ad88)
+### Resource Library
+![Resource Library](https://github.com/user-attachments/assets/de4739ea-a6ff-4968-a093-c324ff00ad88)
