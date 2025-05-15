@@ -209,26 +209,55 @@ const ResourceStorage = {
      * Should be called when the application starts
      */
     initialize: function() {
-        // Create empty storage if it doesn't exist
-        if (!localStorage.getItem(this.STORAGE_KEYS.RESOURCES)) {
-            localStorage.setItem(this.STORAGE_KEYS.RESOURCES, JSON.stringify([]));
+        try {
+            // Check if resources exist in localStorage
+            if (!localStorage.getItem(this.STORAGE_KEYS.RESOURCES)) {
+                // Initialize with empty array
+                localStorage.setItem(this.STORAGE_KEYS.RESOURCES, JSON.stringify([]));
+            }
+            
+            // Check if community index exists
+            if (!localStorage.getItem(this.STORAGE_KEYS.RESOURCES_BY_COMMUNITY)) {
+                // Initialize with empty object
+                localStorage.setItem(this.STORAGE_KEYS.RESOURCES_BY_COMMUNITY, JSON.stringify({}));
+            }
+            
+            // Check if subject index exists
+            if (!localStorage.getItem(this.STORAGE_KEYS.RESOURCES_BY_SUBJECT)) {
+                // Initialize with empty object
+                localStorage.setItem(this.STORAGE_KEYS.RESOURCES_BY_SUBJECT, JSON.stringify({}));
+            }
+            
+            // Load global resources if LocalStorageManager is available
+            if (window.LocalStorageManager) {
+                // Get resources from localStorage
+                const resourcesJson = localStorage.getItem(this.STORAGE_KEYS.RESOURCES);
+                const resources = resourcesJson ? JSON.parse(resourcesJson) : [];
+                
+                // Get global resources from LocalStorageManager
+                const globalResourcesJson = localStorage.getItem(window.LocalStorageManager.STORAGE_KEYS.GLOBAL_RESOURCES);
+                const globalResources = globalResourcesJson ? JSON.parse(globalResourcesJson) : [];
+                
+                // Merge global resources into resources (avoid duplicates)
+                if (globalResources.length > 0) {
+                    const existingIds = new Set(resources.map(r => r.id));
+                    const newResources = globalResources.filter(r => !existingIds.has(r.id));
+                    
+                    if (newResources.length > 0) {
+                        const updatedResources = [...resources, ...newResources];
+                        localStorage.setItem(this.STORAGE_KEYS.RESOURCES, JSON.stringify(updatedResources));
+                        console.log(`Added ${newResources.length} global resources to active resources`);
+                        
+                        // Update indexes
+                        this._updateResourceIndexes(updatedResources);
+                    }
+                }
+            }
+            
+            console.log('ResourceStorage initialized with permanent storage support');
+        } catch (error) {
+            console.error('Error initializing ResourceStorage:', error);
         }
-        
-        // Initialize indexes if they don't exist
-        if (!localStorage.getItem(this.STORAGE_KEYS.RESOURCES_BY_COMMUNITY)) {
-            localStorage.setItem(this.STORAGE_KEYS.RESOURCES_BY_COMMUNITY, JSON.stringify({}));
-        }
-        
-        if (!localStorage.getItem(this.STORAGE_KEYS.RESOURCES_BY_SUBJECT)) {
-            localStorage.setItem(this.STORAGE_KEYS.RESOURCES_BY_SUBJECT, JSON.stringify({}));
-        }
-        
-        console.log('Resource storage initialized');
-        
-        // Rebuild indexes to ensure consistency
-        this.getAllResources().then(resources => {
-            this._updateResourceIndexes(resources);
-        });
     },
     
     /**

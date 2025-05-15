@@ -101,6 +101,16 @@ async function logoutUser() {
             }
         }
         
+        // Preserve user profiles before logout
+        if (window.UserProfileManager) {
+            window.UserProfileManager.preserveProfilesOnLogout();
+        }
+        
+        // Preserve all data (resources, chats, messages) before logout
+        if (window.LocalStorageManager) {
+            window.LocalStorageManager.preserveDataOnLogout();
+        }
+        
         // Sign out the user
         await signOut(auth);
         
@@ -324,6 +334,16 @@ window.triggerLogout = async function() {
             }
         }
         
+        // Preserve user profiles before logout
+        if (window.UserProfileManager) {
+            window.UserProfileManager.preserveProfilesOnLogout();
+        }
+        
+        // Preserve all data (resources, chats, messages) before logout
+        if (window.LocalStorageManager) {
+            window.LocalStorageManager.preserveDataOnLogout();
+        }
+        
         // Sign out the user
         await signOut(auth);
         
@@ -332,6 +352,15 @@ window.triggerLogout = async function() {
         window.location.href = 'landing.html';
     } catch (error) {
         console.error('Logout error:', error);
+        
+        // Even if there's an error during logout, still try to preserve data
+        try {
+            if (window.LocalStorageManager) {
+                window.LocalStorageManager.preserveDataOnLogout();
+            }
+        } catch (preserveError) {
+            console.error('Error preserving data during logout error:', preserveError);
+        }
     }
 };
 
