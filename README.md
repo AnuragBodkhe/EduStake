@@ -140,8 +140,7 @@ For any queries regarding this project, please contact:
 
 ## 📸 Screenshots
 
-=======
-<<<<<<< HEAD
+### Registration Page
 ![Registration Page](./assets/1233.png)
 
 ### Login Page
@@ -155,5 +154,3 @@ For any queries regarding this project, please contact:
 
 ### College Communities
 ![College Communities](./assets/162672.png)
-
-
