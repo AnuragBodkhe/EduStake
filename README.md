@@ -150,7 +150,7 @@ For any queries regarding this project, please contact:
 ![Dashboard](./assets/16262.png)
 
 ### Landing Page - Features
-![Landing Page Features](./assets/156255.png)
+![Landing Page Features](./assets/162672.png)
 
 ### College Communities
-![College Communities](./assets/162672.png)
+![College Communities](./assets/156255.png)
