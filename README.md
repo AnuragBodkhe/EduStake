@@ -141,16 +141,22 @@ For any queries regarding this project, please contact:
 ## 📸 Screenshots
 
 ### Registration Page
-![Registration Page](https://raw.githubusercontent.com/AnuragBodkhe/EduStake/main/assets/1233.png)
+![Registration Page](https://github.com/user-attachments/assets/450e7a01-ef88-4cec-beec-81c8e58710f2)
 
 ### Login Page
-![Login Page](https://raw.githubusercontent.com/AnuragBodkhe/EduStake/main/assets/14225.png)
+![Login Page](https://github.com/user-attachments/assets/513c7fa0-6af0-4ee5-8017-3378db0f3de7)
 
 ### Dashboard - Resource Sharing
-![Dashboard](https://raw.githubusercontent.com/AnuragBodkhe/EduStake/main/assets/16262.png)
+![Dashboard](https://github.com/user-attachments/assets/20ee9534-11d7-4e63-8ad0-803275fa2788)
 
 ### Landing Page - Features
-![Landing Page Features](https://raw.githubusercontent.com/AnuragBodkhe/EduStake/main/assets/156255.png)
+![Landing Page Features](https://github.com/user-attachments/assets/c82e0177-d94e-4041-a3fe-7617158805b5)
 
 ### College Communities
-![College Communities](https://raw.githubusercontent.com/AnuragBodkhe/EduStake/main/assets/162672.png)
+![College Communities](https://github.com/user-attachments/assets/3be7f690-5eec-4217-9bbe-84b596a7dba6)
+
+### Contact Support
+![Contact Support](https://github.com/user-attachments/assets/b9b010a4-428c-435a-b16a-7e29c85d5a65)
+
+### Resource Library
+![Resource Library](https://github.com/user-attachments/assets/de4739ea-a6ff-4968-a093-c324ff00ad88)
