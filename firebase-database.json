@@ -1,75 +1,335 @@
 {
   "rules": {
-    ".read": true,
-    ".write": true,
+    ".read": "auth != null",
+    ".write": "auth != null",
+    "users": {
+      ".indexOn": ["email", "username"],
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "userProfiles": {
+      ".indexOn": ["email", "username"],
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
     "messages": {
-      ".indexOn": ["timestamp", "channelId"]
+      ".indexOn": ["timestamp", "channelId", "userId"],
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "savedChats": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
+        ".indexOn": ["timestamp"]
+      }
+    },
+    "resources": {
+      ".indexOn": ["category", "title", "timestamp", "userId"],
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "searchHistory": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
+        ".indexOn": ["timestamp"]
+      }
     },
     "channels": {
-      ".indexOn": ["communityId"]
+      ".indexOn": ["communityId"],
+      ".read": "auth != null",
+      ".write": "auth != null"
     },
     "communities": {
-      ".indexOn": ["name"]
-    },
-    "users": {
-      ".indexOn": ["email"]
+      ".indexOn": ["name"],
+      ".read": "auth != null",
+      ".write": "auth != null"
     },
     "files": {
-      ".indexOn": ["messageId", "userId"]
+      ".indexOn": ["messageId", "userId", "resourceId"],
+      ".read": "auth != null",
+      ".write": "auth != null"
+    }
+  },
+  "users": {
+    "user123": {
+      "username": "johndoe",
+      "email": "john@example.com",
+      "displayName": "John Doe",
+      "photoURL": "https://firebasestorage.googleapis.com/...",
+      "status": "online",
+      "lastActive": 1625097600000,
+      "createdAt": 1625097600000,
+      "communities": {
+        "community789": true
+      }
+    },
+    "user456": {
+      "username": "janedoe",
+      "email": "jane@example.com",
+      "displayName": "Jane Doe",
+      "photoURL": "https://firebasestorage.googleapis.com/...",
+      "status": "offline",
+      "lastActive": 1625097500000,
+      "createdAt": 1625097400000,
+      "communities": {
+        "community789": true
+      }
+    }
+  },
+  "userProfiles": {
+    "user123": {
+      "uid": "user123",
+      "username": "johndoe",
+      "email": "john@example.com",
+      "photoURL": "https://firebasestorage.googleapis.com/...",
+      "lastUpdated": 1625097600000,
+      "preferences": {
+        "theme": "dark",
+        "notifications": true,
+        "language": "en"
+      }
+    },
+    "user456": {
+      "uid": "user456",
+      "username": "janedoe",
+      "email": "jane@example.com",
+      "photoURL": "https://firebasestorage.googleapis.com/...",
+      "lastUpdated": 1625097500000,
+      "preferences": {
+        "theme": "light",
+        "notifications": false,
+        "language": "en"
+      }
     }
   },
   "messages": {
-    "$messageId": {
-      "text": "Message content goes here",
+    "message123": {
+      "text": "Hello, how are you?",
       "timestamp": 1625097600000,
       "userId": "user123",
+      "username": "johndoe",
+      "photoURL": "https://firebasestorage.googleapis.com/...",
       "channelId": "channel456",
+      "isAI": false
+    },
+    "message124": {
+      "text": "I'm good, thanks for asking!",
+      "timestamp": 1625097660000,
+      "userId": "user456",
+      "username": "janedoe",
+      "photoURL": "https://firebasestorage.googleapis.com/...",
+      "channelId": "channel456",
+      "isAI": false
+    },
+    "message125": {
+      "text": "Here's a resource on machine learning",
+      "timestamp": 1625097720000,
+      "userId": "user123",
+      "username": "johndoe",
+      "photoURL": "https://firebasestorage.googleapis.com/...",
+      "channelId": "channel456",
+      "isAI": false,
       "attachments": {
-        "$attachmentId": {
-          "type": "image",
+        "attachment1": {
+          "type": "pdf",
           "url": "https://firebasestorage.googleapis.com/...",
-          "name": "example.jpg",
-          "size": 1024000
+          "name": "ml_intro.pdf",
+          "size": 2048000
         }
       }
     }
   },
+  "savedChats": {
+    "user123": {
+      "saved1": {
+        "id": "message125",
+        "text": "Here's a resource on machine learning",
+        "timestamp": 1625097720000,
+        "userId": "user123",
+        "username": "johndoe",
+        "photoURL": "https://firebasestorage.googleapis.com/...",
+        "channelId": "channel456",
+        "isAI": false,
+        "savedAt": 1625097900000,
+        "attachments": {
+          "attachment1": {
+            "type": "pdf",
+            "url": "https://firebasestorage.googleapis.com/...",
+            "name": "ml_intro.pdf",
+            "size": 2048000
+          }
+        }
+      }
+    },
+    "user456": {
+      "saved2": {
+        "id": "message123",
+        "text": "Hello, how are you?",
+        "timestamp": 1625097600000,
+        "userId": "user123",
+        "username": "johndoe",
+        "photoURL": "https://firebasestorage.googleapis.com/...",
+        "channelId": "channel456",
+        "isAI": false,
+        "savedAt": 1625097800000
+      }
+    }
+  },
+  "resources": {
+    "resource1": {
+      "title": "Introduction to Machine Learning",
+      "description": "A comprehensive guide to machine learning fundamentals",
+      "content": "Content goes here...",
+      "category": "Machine Learning",
+      "tags": ["AI", "ML", "Data Science"],
+      "timestamp": 1625097600000,
+      "userId": "user123",
+      "username": "johndoe",
+      "likes": 42,
+      "views": 128,
+      "attachments": {
+        "attachment1": {
+          "type": "pdf",
+          "url": "https://firebasestorage.googleapis.com/...",
+          "name": "ml_intro.pdf",
+          "size": 2048000
+        }
+      },
+      "comments": {
+        "comment1": {
+          "text": "Great resource!",
+          "userId": "user456",
+          "username": "janedoe",
+          "timestamp": 1625097600000
+        }
+      }
+    },
+    "resource2": {
+      "title": "Advanced Data Structures",
+      "description": "Deep dive into complex data structures",
+      "content": "Content goes here...",
+      "category": "Computer Science",
+      "tags": ["Programming", "Algorithms", "Data Structures"],
+      "timestamp": 1625097700000,
+      "userId": "user456",
+      "username": "janedoe",
+      "likes": 28,
+      "views": 96,
+      "attachments": {
+        "attachment2": {
+          "type": "pdf",
+          "url": "https://firebasestorage.googleapis.com/...",
+          "name": "data_structures.pdf",
+          "size": 1548000
+        }
+      }
+    }
+  },
+  "searchHistory": {
+    "user123": {
+      "search1": {
+        "query": "machine learning",
+        "timestamp": 1625097600000,
+        "resultCount": 15
+      },
+      "search2": {
+        "query": "neural networks",
+        "timestamp": 1625097700000,
+        "resultCount": 8
+      }
+    },
+    "user456": {
+      "search3": {
+        "query": "data structures",
+        "timestamp": 1625097800000,
+        "resultCount": 12
+      }
+    }
+  },
   "channels": {
-    "$channelId": {
+    "channel456": {
       "name": "general",
       "description": "General discussion channel",
       "communityId": "community789",
-      "createdAt": 1625097600000
+      "createdAt": 1625097600000,
+      "createdBy": "user123",
+      "type": "public",
+      "members": {
+        "user123": {
+          "role": "admin",
+          "joinedAt": 1625097600000
+        },
+        "user456": {
+          "role": "member",
+          "joinedAt": 1625097650000
+        }
+      }
+    },
+    "channel457": {
+      "name": "machine-learning",
+      "description": "Discussions about ML topics",
+      "communityId": "community789",
+      "createdAt": 1625097700000,
+      "createdBy": "user456",
+      "type": "public",
+      "members": {
+        "user123": {
+          "role": "member",
+          "joinedAt": 1625097750000
+        },
+        "user456": {
+          "role": "admin",
+          "joinedAt": 1625097700000
+        }
+      }
     }
   },
   "communities": {
-    "$communityId": {
+    "community789": {
       "name": "University of Example",
       "shortName": "UoE",
+      "description": "Official community for University of Example",
       "logoUrl": "https://firebasestorage.googleapis.com/...",
-      "createdAt": 1625097600000
-    }
-  },
-  "users": {
-    "$userId": {
-      "username": "johndoe",
-      "email": "john@example.com",
-      "profilePicture": "https://firebasestorage.googleapis.com/...",
-      "status": "online",
-      "communities": {
-        "$communityId": true
+      "bannerUrl": "https://firebasestorage.googleapis.com/...",
+      "createdAt": 1625097600000,
+      "createdBy": "user123",
+      "members": {
+        "user123": {
+          "role": "admin",
+          "joinedAt": 1625097600000
+        },
+        "user456": {
+          "role": "member",
+          "joinedAt": 1625097650000
+        }
       }
     }
   },
   "files": {
-    "$fileId": {
-      "name": "example.jpg",
-      "type": "image/jpeg",
-      "size": 1024000,
+    "file1": {
+      "name": "ml_intro.pdf",
+      "type": "application/pdf",
+      "size": 2048000,
       "url": "https://firebasestorage.googleapis.com/...",
-      "messageId": "message123",
+      "messageId": "message125",
+      "resourceId": "resource1",
       "userId": "user123",
-      "uploadedAt": 1625097600000
+      "uploadedAt": 1625097720000
+    },
+    "file2": {
+      "name": "data_structures.pdf",
+      "type": "application/pdf",
+      "size": 1548000,
+      "url": "https://firebasestorage.googleapis.com/...",
+      "resourceId": "resource2",
+      "userId": "user456",
+      "uploadedAt": 1625097700000
     }
   }
 }

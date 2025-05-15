@@ -1,0 +1,68 @@
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null",
+    
+    "users": {
+      ".indexOn": ["email", "username"],
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    
+    "userProfiles": {
+      ".indexOn": ["email", "username"],
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    
+    "messages": {
+      ".indexOn": ["timestamp", "channelId", "userId"],
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    
+    "savedChats": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
+        ".indexOn": ["timestamp"]
+      }
+    },
+    
+    "resources": {
+      ".indexOn": ["category", "title", "timestamp", "userId"],
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    
+    "searchHistory": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
+        ".indexOn": ["timestamp"]
+      }
+    },
+    
+    "channels": {
+      ".indexOn": ["communityId"],
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('channels').child($channelId).child('members').child(auth.uid).exists() || root.child('channels').child($channelId).child('createdBy').val() == auth.uid"
+    },
+    
+    "communities": {
+      ".indexOn": ["name"],
+      ".read": "auth != null",
+      ".write": "auth != null && (root.child('communities').child($communityId).child('members').child(auth.uid).child('role').val() == 'admin' || !data.exists())"
+    },
+    
+    "files": {
+      ".indexOn": ["messageId", "userId", "resourceId"],
+      ".read": "auth != null",
+      ".write": "auth != null && auth.uid == newData.child('userId').val()"
+    }
+  }
+}

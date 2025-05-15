@@ -1,0 +1,585 @@
+{
+  "db": "edustake",
+  "collections": {
+    "userProfiles": {
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["uid", "username", "email", "createdAt"],
+          "properties": {
+            "uid": {
+              "bsonType": "string",
+              "description": "User ID - required and must be a string"
+            },
+            "username": {
+              "bsonType": "string",
+              "description": "Username - required and must be a string"
+            },
+            "email": {
+              "bsonType": "string",
+              "description": "Email address - required and must be a string"
+            },
+            "profilePicture": {
+              "bsonType": "string",
+              "description": "URL to profile picture"
+            },
+            "createdAt": {
+              "bsonType": "date",
+              "description": "Timestamp when the profile was created - required"
+            },
+            "lastUpdated": {
+              "bsonType": "date",
+              "description": "Timestamp when the profile was last updated"
+            },
+            "lastActive": {
+              "bsonType": "date",
+              "description": "Timestamp when the user was last active"
+            },
+            "colleges": {
+              "bsonType": "object",
+              "description": "Object of college IDs the user belongs to",
+              "patternProperties": {
+                "^[a-zA-Z0-9-_]+$": {
+                  "bsonType": "bool"
+                }
+              }
+            },
+            "settings": {
+              "bsonType": "object",
+              "properties": {
+                "theme": {
+                  "bsonType": "string"
+                },
+                "notifications": {
+                  "bsonType": "bool"
+                }
+              }
+            }
+          }
+        }
+      },
+      "indexes": [
+        {
+          "key": { "username": 1 },
+          "name": "username_index",
+          "unique": true
+        },
+        {
+          "key": { "email": 1 },
+          "name": "email_index",
+          "unique": true
+        }
+      ]
+    },
+    "colleges": {
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["name", "createdAt"],
+          "properties": {
+            "name": {
+              "bsonType": "string",
+              "description": "College name - required"
+            },
+            "shortName": {
+              "bsonType": "string",
+              "description": "Short name or abbreviation"
+            },
+            "logoUrl": {
+              "bsonType": "string",
+              "description": "URL to college logo"
+            },
+            "createdAt": {
+              "bsonType": "date",
+              "description": "Timestamp when the college was created"
+            },
+            "members": {
+              "bsonType": "object",
+              "description": "Object of user IDs with their roles",
+              "patternProperties": {
+                "^[a-zA-Z0-9-_]+$": {
+                  "bsonType": "object",
+                  "properties": {
+                    "role": {
+                      "bsonType": "string"
+                    },
+                    "joinedAt": {
+                      "bsonType": "date"
+                    }
+                  }
+                }
+              }
+            },
+            "channels": {
+              "bsonType": "object",
+              "description": "Object of channel IDs",
+              "patternProperties": {
+                "^[a-zA-Z0-9-_]+$": {
+                  "bsonType": "bool"
+                }
+              }
+            }
+          }
+        }
+      },
+      "indexes": [
+        {
+          "key": { "name": 1 },
+          "name": "college_name_index",
+          "unique": true
+        }
+      ]
+    },
+    "channels": {
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["name", "collegeId", "createdAt", "createdBy"],
+          "properties": {
+            "name": {
+              "bsonType": "string",
+              "description": "Channel name - required"
+            },
+            "description": {
+              "bsonType": "string",
+              "description": "Channel description"
+            },
+            "collegeId": {
+              "bsonType": "string",
+              "description": "ID of the college this channel belongs to - required"
+            },
+            "createdAt": {
+              "bsonType": "date",
+              "description": "Timestamp when the channel was created - required"
+            },
+            "createdBy": {
+              "bsonType": "string",
+              "description": "User ID of the creator - required"
+            },
+            "type": {
+              "bsonType": "string",
+              "description": "Channel type (e.g., 'general', 'course', 'private')"
+            },
+            "isPrivate": {
+              "bsonType": "bool",
+              "description": "Whether the channel is private"
+            },
+            "members": {
+              "bsonType": "object",
+              "description": "Object of user IDs who are members",
+              "patternProperties": {
+                "^[a-zA-Z0-9-_]+$": {
+                  "bsonType": "bool"
+                }
+              }
+            }
+          }
+        }
+      },
+      "indexes": [
+        {
+          "key": { "collegeId": 1 },
+          "name": "college_id_index"
+        },
+        {
+          "key": { "collegeId": 1, "name": 1 },
+          "name": "college_channel_index",
+          "unique": true
+        }
+      ]
+    },
+    "messages": {
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["channelId", "userId", "content", "timestamp"],
+          "properties": {
+            "channelId": {
+              "bsonType": "string",
+              "description": "Channel ID - required"
+            },
+            "userId": {
+              "bsonType": "string",
+              "description": "User ID of the sender - required"
+            },
+            "username": {
+              "bsonType": "string",
+              "description": "Username of the sender"
+            },
+            "userProfilePic": {
+              "bsonType": "string",
+              "description": "Profile picture URL of the sender"
+            },
+            "content": {
+              "bsonType": "string",
+              "description": "Message content - required"
+            },
+            "timestamp": {
+              "bsonType": "date",
+              "description": "Timestamp when the message was sent - required"
+            },
+            "edited": {
+              "bsonType": "bool",
+              "description": "Whether the message has been edited"
+            },
+            "editedAt": {
+              "bsonType": "date",
+              "description": "Timestamp when the message was last edited"
+            },
+            "attachments": {
+              "bsonType": "array",
+              "description": "Array of attachment objects",
+              "items": {
+                "bsonType": "object",
+                "properties": {
+                  "type": {
+                    "bsonType": "string"
+                  },
+                  "url": {
+                    "bsonType": "string"
+                  },
+                  "name": {
+                    "bsonType": "string"
+                  },
+                  "size": {
+                    "bsonType": "int"
+                  }
+                }
+              }
+            },
+            "reactions": {
+              "bsonType": "array",
+              "description": "Array of reaction objects",
+              "items": {
+                "bsonType": "object",
+                "properties": {
+                  "emoji": {
+                    "bsonType": "string"
+                  },
+                  "count": {
+                    "bsonType": "int"
+                  },
+                  "users": {
+                    "bsonType": "array",
+                    "items": {
+                      "bsonType": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "indexes": [
+        {
+          "key": { "channelId": 1, "timestamp": -1 },
+          "name": "channel_time_index"
+        },
+        {
+          "key": { "userId": 1 },
+          "name": "user_messages_index"
+        },
+        {
+          "key": { "content": "text" },
+          "name": "content_text_index"
+        }
+      ]
+    },
+    "savedChats": {
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["userId", "messageId", "savedAt"],
+          "properties": {
+            "userId": {
+              "bsonType": "string",
+              "description": "User ID who saved the chat - required"
+            },
+            "messageId": {
+              "bsonType": "string",
+              "description": "Message ID that was saved - required"
+            },
+            "savedAt": {
+              "bsonType": "date",
+              "description": "Timestamp when the chat was saved - required"
+            },
+            "note": {
+              "bsonType": "string",
+              "description": "Optional note added by the user"
+            },
+            "messageData": {
+              "bsonType": "object",
+              "description": "Cached message data",
+              "properties": {
+                "content": {
+                  "bsonType": "string"
+                },
+                "username": {
+                  "bsonType": "string"
+                },
+                "timestamp": {
+                  "bsonType": "date"
+                },
+                "channelId": {
+                  "bsonType": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "indexes": [
+        {
+          "key": { "userId": 1, "savedAt": -1 },
+          "name": "user_saved_index"
+        },
+        {
+          "key": { "userId": 1, "messageId": 1 },
+          "name": "user_message_index",
+          "unique": true
+        }
+      ]
+    },
+    "files": {
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["name", "url", "userId", "uploadedAt"],
+          "properties": {
+            "name": {
+              "bsonType": "string",
+              "description": "File name - required"
+            },
+            "type": {
+              "bsonType": "string",
+              "description": "File MIME type"
+            },
+            "size": {
+              "bsonType": "int",
+              "description": "File size in bytes"
+            },
+            "url": {
+              "bsonType": "string",
+              "description": "URL to the file - required"
+            },
+            "path": {
+              "bsonType": "string",
+              "description": "Storage path"
+            },
+            "messageId": {
+              "bsonType": "string",
+              "description": "ID of the message this file is attached to"
+            },
+            "channelId": {
+              "bsonType": "string",
+              "description": "ID of the channel this file was uploaded to"
+            },
+            "userId": {
+              "bsonType": "string",
+              "description": "User ID of the uploader - required"
+            },
+            "uploadedAt": {
+              "bsonType": "date",
+              "description": "Timestamp when the file was uploaded - required"
+            }
+          }
+        }
+      },
+      "indexes": [
+        {
+          "key": { "userId": 1 },
+          "name": "user_files_index"
+        },
+        {
+          "key": { "channelId": 1 },
+          "name": "channel_files_index"
+        },
+        {
+          "key": { "messageId": 1 },
+          "name": "message_files_index"
+        }
+      ]
+    },
+    "resources": {
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["title", "userId", "timestamp"],
+          "properties": {
+            "title": {
+              "bsonType": "string",
+              "description": "Resource title - required"
+            },
+            "description": {
+              "bsonType": "string",
+              "description": "Resource description"
+            },
+            "content": {
+              "bsonType": "string",
+              "description": "Resource content"
+            },
+            "url": {
+              "bsonType": "string",
+              "description": "URL if resource is external"
+            },
+            "fileUrl": {
+              "bsonType": "string",
+              "description": "URL to attached file"
+            },
+            "category": {
+              "bsonType": "string",
+              "description": "Resource category"
+            },
+            "tags": {
+              "bsonType": "array",
+              "description": "Array of tags",
+              "items": {
+                "bsonType": "string"
+              }
+            },
+            "userId": {
+              "bsonType": "string",
+              "description": "User ID of the creator - required"
+            },
+            "username": {
+              "bsonType": "string",
+              "description": "Username of the creator"
+            },
+            "timestamp": {
+              "bsonType": "date",
+              "description": "Timestamp when the resource was created - required"
+            },
+            "lastUpdated": {
+              "bsonType": "date",
+              "description": "Timestamp when the resource was last updated"
+            },
+            "likes": {
+              "bsonType": "array",
+              "description": "Array of user IDs who liked this resource",
+              "items": {
+                "bsonType": "string"
+              }
+            },
+            "likeCount": {
+              "bsonType": "int",
+              "description": "Count of likes"
+            }
+          }
+        }
+      },
+      "indexes": [
+        {
+          "key": { "category": 1, "timestamp": -1 },
+          "name": "category_time_index"
+        },
+        {
+          "key": { "userId": 1 },
+          "name": "user_resources_index"
+        },
+        {
+          "key": { "tags": 1 },
+          "name": "tags_index"
+        },
+        {
+          "key": { "title": "text", "description": "text", "content": "text" },
+          "name": "resource_text_index"
+        }
+      ]
+    },
+    "searchHistory": {
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["query", "userId", "timestamp"],
+          "properties": {
+            "query": {
+              "bsonType": "string",
+              "description": "Search query - required"
+            },
+            "userId": {
+              "bsonType": "string",
+              "description": "User ID - required"
+            },
+            "timestamp": {
+              "bsonType": "date",
+              "description": "Timestamp when the search was performed - required"
+            },
+            "resultCount": {
+              "bsonType": "int",
+              "description": "Number of results found"
+            }
+          }
+        }
+      },
+      "indexes": [
+        {
+          "key": { "userId": 1, "timestamp": -1 },
+          "name": "user_search_time_index"
+        },
+        {
+          "key": { "query": 1 },
+          "name": "query_index"
+        }
+      ]
+    },
+    "notifications": {
+      "validator": {
+        "$jsonSchema": {
+          "bsonType": "object",
+          "required": ["userId", "type", "message", "timestamp"],
+          "properties": {
+            "userId": {
+              "bsonType": "string",
+              "description": "User ID - required"
+            },
+            "type": {
+              "bsonType": "string",
+              "description": "Notification type - required"
+            },
+            "message": {
+              "bsonType": "string",
+              "description": "Notification message - required"
+            },
+            "sourceId": {
+              "bsonType": "string",
+              "description": "ID of the source (message, resource, etc.)"
+            },
+            "sourceType": {
+              "bsonType": "string",
+              "description": "Type of the source"
+            },
+            "timestamp": {
+              "bsonType": "date",
+              "description": "Timestamp when the notification was created - required"
+            },
+            "read": {
+              "bsonType": "bool",
+              "description": "Whether the notification has been read"
+            }
+          }
+        }
+      },
+      "indexes": [
+        {
+          "key": { "userId": 1, "timestamp": -1 },
+          "name": "user_notification_time_index"
+        },
+        {
+          "key": { "userId": 1, "read": 1 },
+          "name": "user_unread_index"
+        }
+      ]
+    }
+  },
+  "migration": {
+    "version": 1,
+    "description": "Initial MongoDB Atlas schema for EduStake application",
+    "notes": [
+      "This schema maintains compatibility with the existing Firebase structure",
+      "MongoDB uses BSON types instead of Firebase's string types",
+      "Added text indexes for search functionality",
+      "Changed some nested objects to arrays for better query performance"
+    ]
+  }
+}

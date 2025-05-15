@@ -131,12 +131,12 @@
   </div>
   
   <!-- Firebase SDK -->
-  <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-    import { getDatabase, ref, update, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
-
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  
+  <script>
     // Your web app's Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyD-hLnUmU12N9ivvIq7efYLe16O4DSLFx4",
@@ -149,44 +149,83 @@
       measurementId: "G-R7M8MT3BN6"
     };
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const database = getDatabase(app);
+    // Initialize Firebase with compat version
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
 
     // Login form handler
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
-      loginForm.addEventListener('submit', async function(e) {
+      loginForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const messagesContainer = document.getElementById('messages-container');
         
-        try {
-          const userCredential = await signInWithEmailAndPassword(auth, email, password);
-          const user = userCredential.user;
-
-          try {
-            // Try to update last active timestamp
-            await update(ref(database, `users/${user.uid}`), {
+        // Clear any previous messages
+        messagesContainer.innerHTML = '';
+        
+        // Show loading message
+        messagesContainer.innerHTML = '<div class="info-message"><p>Logging in...</p></div>';
+        
+        // Sign in with Firebase
+        auth.signInWithEmailAndPassword(email, password)
+          .then((userCredential) => {
+            // Signed in
+            const user = userCredential.user;
+            
+            // Update last active timestamp
+            database.ref(`users/${user.uid}`).update({
               lastActive: new Date().toISOString()
+            }).catch((dbError) => {
+              console.error('Database update error:', dbError);
+              // Even if database update fails, we can still proceed with login
             });
-          } catch (dbError) {
-            console.error('Database update error:', dbError);
-            // Even if database update fails, we can still proceed with login
-          }
-          
-          messagesContainer.innerHTML = '<div class="success-message"><p>Login successful!</p></div>';
-          setTimeout(() => {
-            window.location.href = 'index.html';
-          }, 1500);
-          
-        } catch (error) {
-          console.error('Login error:', error);
-          messagesContainer.innerHTML = `<div class="error-messages"><p>${error.message}</p></div>`;
-        }
+            
+            // Get user profile from database
+            return database.ref(`userProfiles/${user.uid}`).once('value');
+          })
+          .then((snapshot) => {
+            let profile = snapshot.val();
+            const user = auth.currentUser;
+            
+            if (!profile) {
+              // Create default profile if none exists
+              profile = {
+                uid: user.uid,
+                username: user.displayName || user.email.split('@')[0],
+                email: user.email,
+                photoURL: user.photoURL || null,
+                lastUpdated: Date.now()
+              };
+              
+              // Save new profile
+              database.ref(`userProfiles/${user.uid}`).set(profile);
+            }
+            
+            // Store user data in localStorage for compatibility with existing code
+            localStorage.setItem('currentUser', JSON.stringify({
+              uid: user.uid,
+              email: user.email,
+              displayName: profile.username || user.displayName,
+              photoURL: profile.photoURL || user.photoURL,
+              username: profile.username || user.displayName
+            }));
+            
+            // Show success message
+            messagesContainer.innerHTML = '<div class="success-message"><p>Login successful!</p></div>';
+            
+            // Redirect to main page
+            setTimeout(() => {
+              window.location.href = 'index.html';
+            }, 1500);
+          })
+          .catch((error) => {
+            console.error('Login error:', error);
+            messagesContainer.innerHTML = `<div class="error-messages"><p>${error.message}</p></div>`;
+          });
       });
     }
     
@@ -208,7 +247,7 @@
         const confirmReset = confirm(`Send password reset email to ${email}?`);
         
         if (confirmReset) {
-          sendPasswordResetEmail(auth, email)
+          auth.sendPasswordResetEmail(email)
             .then(() => {
               messagesContainer.innerHTML = '<div class="info-message"><p>Password reset email sent! Please check your inbox.</p></div>';
             })
