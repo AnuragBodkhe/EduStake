@@ -141,16 +141,16 @@ For any queries regarding this project, please contact:
 ## 📸 Screenshots
 
 ### Registration Page
-![Registration Page](./assets/1233.png)
+![Registration Page](https://raw.githubusercontent.com/AnuragBodkhe/EduStake/main/assets/1233.png)
 
 ### Login Page
-![Login Page](./assets/14225.png)
+![Login Page](https://raw.githubusercontent.com/AnuragBodkhe/EduStake/main/assets/14225.png)
 
 ### Dashboard - Resource Sharing
-![Dashboard](./assets/16262.png)
+![Dashboard](https://raw.githubusercontent.com/AnuragBodkhe/EduStake/main/assets/16262.png)
 
 ### Landing Page - Features
-![Landing Page Features](./assets/156255.png)
+![Landing Page Features](https://raw.githubusercontent.com/AnuragBodkhe/EduStake/main/assets/156255.png)
 
 ### College Communities
-![College Communities](./assets/162672.png)
+![College Communities](https://raw.githubusercontent.com/AnuragBodkhe/EduStake/main/assets/162672.png)
